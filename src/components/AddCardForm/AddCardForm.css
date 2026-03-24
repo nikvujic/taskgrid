@@ -1,0 +1,93 @@
+.add-card-trigger {
+  width: 100%;
+  padding: 8px 10px;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.1s, color 0.1s;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.04);
+    color: var(--text-h);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .add-card-trigger:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+}
+
+.add-card-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.add-card-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text-h);
+  font-size: 14px;
+  font-family: inherit;
+  resize: none;
+  box-sizing: border-box;
+
+  &:focus {
+    outline: none;
+  }
+
+  &::placeholder {
+    color: var(--text);
+    opacity: 0.6;
+  }
+}
+
+.add-card-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-add {
+  padding: 6px 14px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:hover:not(:disabled) {
+    opacity: 0.88;
+  }
+}
+
+.btn-cancel {
+  padding: 6px 10px;
+  background: none;
+  border: none;
+  border-radius: 5px;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  font-family: inherit;
+
+  &:hover {
+    color: var(--text-h);
+  }
+}

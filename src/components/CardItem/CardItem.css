@@ -1,0 +1,19 @@
+.card-item {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: box-shadow 0.1s;
+
+  &:hover {
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  }
+}
+
+.card-title {
+  font-size: 14px;
+  color: var(--text-h);
+  line-height: 140%;
+  word-break: break-word;
+}
