@@ -1,0 +1,127 @@
+.boards-page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+}
+
+.boards-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  height: 56px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+
+  @media (max-width: 640px) {
+    padding: 0 16px;
+  }
+}
+
+.boards-logo {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.boards-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.boards-user {
+  font-size: 14px;
+  color: var(--text);
+
+  @media (max-width: 480px) {
+    display: none;
+  }
+}
+
+.btn-logout {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+
+  &:hover {
+    background: var(--border);
+    color: var(--text-h);
+  }
+}
+
+.boards-main {
+  flex: 1;
+  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+
+  @media (max-width: 640px) {
+    padding: 24px 16px;
+  }
+}
+
+.boards-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.boards-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-h);
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+.btn-add-board {
+  padding: 9px 16px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+
+  &:hover {
+    opacity: 0.88;
+  }
+}
+
+.boards-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.boards-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: var(--text);
+  min-height: 240px;
+
+  p {
+    font-size: 16px;
+    margin: 0;
+  }
+}
