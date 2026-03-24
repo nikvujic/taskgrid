@@ -1,7 +1,7 @@
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -9,13 +9,19 @@
   padding: 24px;
 }
 
+@media (prefers-color-scheme: dark) {
+  .modal-backdrop {
+    background: rgba(0, 0, 0, 0.6);
+  }
+}
+
 .modal {
   background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 10px;
   width: 100%;
-  max-width: 440px;
-  box-shadow: var(--shadow);
+  max-width: 400px;
+  box-shadow: var(--shadow-md);
   display: flex;
   flex-direction: column;
 }
@@ -24,42 +30,39 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 24px 0;
+  padding: 18px 20px 0;
 
   h2 {
-    font-size: 18px;
-    font-weight: 600;
+    font-size: 15px;
     color: var(--text-h);
-    margin: 0;
   }
 }
 
 .modal-close {
   background: none;
   border: none;
-  font-size: 16px;
+  font-size: 14px;
   color: var(--text);
-  cursor: pointer;
-  padding: 4px 8px;
+  padding: 4px 6px;
   border-radius: 4px;
-  font-family: inherit;
   line-height: 1;
+  transition: background 0.12s, color 0.12s;
 
   &:hover {
-    background: var(--border);
+    background: var(--surface);
     color: var(--text-h);
   }
 }
 
 .modal-body {
-  padding: 20px 24px;
+  padding: 18px 20px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
 .modal-footer {
-  padding: 0 24px 20px;
+  padding: 0 20px 18px;
   display: flex;
   justify-content: flex-end;
   gap: 8px;
@@ -68,32 +71,35 @@
 .form-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
 
   label {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 500;
     color: var(--text-h);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   input {
-    padding: 10px 12px;
+    padding: 8px 10px;
     border: 1px solid var(--border);
     border-radius: 6px;
     background: var(--bg);
     color: var(--text-h);
-    font-size: 15px;
+    font-size: 14px;
     font-family: inherit;
-    transition: border-color 0.15s;
+    transition: border-color 0.15s, box-shadow 0.15s;
 
     &::placeholder {
       color: var(--text);
-      opacity: 0.6;
+      opacity: 0.5;
     }
 
     &:focus {
       outline: none;
       border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-bg);
     }
   }
 }
@@ -105,34 +111,31 @@
 }
 
 .color-swatch {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   border: 2px solid transparent;
-  cursor: pointer;
   padding: 0;
-  transition: transform 0.1s, border-color 0.1s;
+  transition: transform 0.1s, box-shadow 0.1s;
 
   &:hover {
-    transform: scale(1.15);
+    transform: scale(1.1);
   }
 
   &.selected {
-    border-color: var(--text-h);
-    transform: scale(1.15);
+    box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px currentColor;
+    transform: scale(1.1);
   }
 }
 
 .btn-primary {
-  padding: 9px 18px;
+  padding: 8px 16px;
   background: var(--accent);
   color: #fff;
   border: none;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
-  font-family: inherit;
-  cursor: pointer;
   transition: opacity 0.15s;
 
   &:hover:not(:disabled) {
@@ -140,25 +143,23 @@
   }
 
   &:disabled {
-    opacity: 0.5;
+    opacity: 0.4;
     cursor: not-allowed;
   }
 }
 
 .btn-ghost {
-  padding: 9px 18px;
+  padding: 8px 14px;
   background: none;
   color: var(--text);
   border: 1px solid var(--border);
   border-radius: 6px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
-  font-family: inherit;
-  cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.15s, color 0.15s;
 
   &:hover {
-    background: var(--border);
+    background: var(--surface);
     color: var(--text-h);
   }
 }

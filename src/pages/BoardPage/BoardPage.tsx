@@ -5,6 +5,7 @@ import { useAppSelector } from '../../hooks/useAppSelector';
 import { loadBoards } from '../../store/boardsSlice';
 import ListColumn from '../../components/ListColumn/ListColumn';
 import AddListForm from '../../components/AddListForm/AddListForm';
+import ThemeToggle from '../../components/ThemeToggle/ThemeToggle';
 import './BoardPage.css';
 
 export default function BoardPage() {
@@ -33,15 +34,20 @@ export default function BoardPage() {
 
   return (
     <div className="board-page">
-      <header className="board-header" style={{ '--card-color': board.color } as React.CSSProperties}>
+      <header className="board-header">
         <div className="board-header-inner">
           <button className="btn-back-link" onClick={() => navigate('/')}>
             ← Boards
           </button>
+          <span className="board-header-sep">/</span>
+          <div
+            className="board-color-dot"
+            style={{ '--card-color': board.color } as React.CSSProperties}
+          />
           <h1 className="board-title">{board.name}</h1>
-          {board.description && (
-            <span className="board-desc">{board.description}</span>
-          )}
+          <div className="board-header-actions">
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 

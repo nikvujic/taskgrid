@@ -4,14 +4,14 @@ import { addBoard } from '../../store/boardsSlice';
 import './AddBoardModal.css';
 
 const COLORS = [
-  '#aa3bff',
-  '#3b82f6',
-  '#10b981',
-  '#f59e0b',
-  '#ef4444',
-  '#ec4899',
-  '#6366f1',
-  '#14b8a6',
+  '#2563eb',
+  '#7c3aed',
+  '#db2777',
+  '#dc2626',
+  '#d97706',
+  '#16a34a',
+  '#0891b2',
+  '#6b7280',
 ];
 
 interface Props {

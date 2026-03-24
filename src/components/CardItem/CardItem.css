@@ -2,18 +2,18 @@
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 6px;
-  padding: 10px 12px;
-  cursor: pointer;
-  transition: box-shadow 0.1s;
+  padding: 9px 11px;
+  transition: box-shadow 0.12s, border-color 0.12s;
 
   &:hover {
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    border-color: var(--text);
+    box-shadow: var(--shadow);
   }
 }
 
 .card-title {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text-h);
-  line-height: 140%;
+  line-height: 145%;
   word-break: break-word;
 }

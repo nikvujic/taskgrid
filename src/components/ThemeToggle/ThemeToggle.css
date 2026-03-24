@@ -1,15 +1,14 @@
-.import-export {
+.theme-toggle {
   display: flex;
-  gap: 4px;
-}
-
-.ie-btn {
-  padding: 5px 10px;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
   background: none;
   border: 1px solid var(--border);
-  border-radius: 5px;
-  font-size: 12px;
+  border-radius: 6px;
   color: var(--text);
+  padding: 0;
   transition: background 0.12s, color 0.12s, border-color 0.12s;
 
   &:hover {

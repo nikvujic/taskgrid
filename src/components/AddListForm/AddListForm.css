@@ -1,51 +1,40 @@
 .add-list-trigger-wrap {
   flex-shrink: 0;
-  width: 260px;
+  width: 256px;
 }
 
 .add-list-trigger {
   width: 100%;
-  padding: 10px 14px;
-  background: rgba(0, 0, 0, 0.05);
+  padding: 10px 12px;
+  background: transparent;
   border: 1px dashed var(--border);
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text);
   text-align: left;
-  cursor: pointer;
-  font-family: inherit;
-  transition: background 0.1s, color 0.1s, border-color 0.1s;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
 
   &:hover {
-    background: rgba(0, 0, 0, 0.08);
-    color: var(--text-h);
     border-color: var(--accent-border);
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .add-list-trigger {
-    background: rgba(255, 255, 255, 0.04);
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.08);
-    }
+    color: var(--accent);
+    background: var(--accent-bg);
   }
 }
 
 .add-list-wrap {
   flex-shrink: 0;
-  width: 260px;
+  width: 256px;
 }
 
 .add-list-form {
-  background: var(--bg);
+  background: var(--surface);
   border: 1px solid var(--accent-border);
   border-radius: 8px;
-  padding: 12px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
   gap: 8px;
+  box-shadow: 0 0 0 3px var(--accent-bg);
 }
 
 .add-list-input {
@@ -55,9 +44,8 @@
   border-radius: 5px;
   background: var(--bg);
   color: var(--text-h);
-  font-size: 14px;
+  font-size: 13px;
   font-family: inherit;
-  box-sizing: border-box;
 
   &:focus {
     outline: none;
@@ -66,7 +54,7 @@
 
   &::placeholder {
     color: var(--text);
-    opacity: 0.6;
+    opacity: 0.5;
   }
 }
 
@@ -76,18 +64,16 @@
 }
 
 .btn-add {
-  padding: 6px 14px;
+  padding: 6px 12px;
   background: var(--accent);
   color: #fff;
   border: none;
   border-radius: 5px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
-  font-family: inherit;
-  cursor: pointer;
 
   &:disabled {
-    opacity: 0.5;
+    opacity: 0.4;
     cursor: not-allowed;
   }
 
@@ -97,14 +83,13 @@
 }
 
 .btn-cancel {
-  padding: 6px 10px;
+  padding: 6px 8px;
   background: none;
   border: none;
   border-radius: 5px;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text);
-  cursor: pointer;
-  font-family: inherit;
+  transition: color 0.1s;
 
   &:hover {
     color: var(--text-h);

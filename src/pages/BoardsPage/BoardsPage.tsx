@@ -6,6 +6,7 @@ import { logout } from '../../store/authSlice';
 import BoardCard from '../../components/BoardCard/BoardCard';
 import AddBoardModal from '../../components/AddBoardModal/AddBoardModal';
 import ImportExport from '../../components/ImportExport/ImportExport';
+import ThemeToggle from '../../components/ThemeToggle/ThemeToggle';
 import './BoardsPage.css';
 
 export default function BoardsPage() {
@@ -35,6 +36,7 @@ export default function BoardsPage() {
           <button className="btn-logout" onClick={handleLogout}>
             Sign out
           </button>
+          <ThemeToggle />
         </div>
       </header>
 
