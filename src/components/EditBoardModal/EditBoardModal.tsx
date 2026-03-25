@@ -2,18 +2,8 @@ import { useState } from 'react';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
 import { updateBoard } from '../../store/boardsSlice';
 import type { Board } from '../../types';
+import ColorPicker from '../ColorPicker/ColorPicker';
 import '../../components/AddBoardModal/AddBoardModal.css';
-
-const COLORS = [
-  '#2563eb',
-  '#7c3aed',
-  '#db2777',
-  '#dc2626',
-  '#d97706',
-  '#16a34a',
-  '#0891b2',
-  '#6b7280',
-];
 
 interface Props {
   board: Board;
@@ -75,18 +65,7 @@ export default function EditBoardModal({ board, onClose }: Props) {
 
             <div className="form-field">
               <label>Color</label>
-              <div className="color-picker">
-                {COLORS.map((c) => (
-                  <button
-                    key={c}
-                    type="button"
-                    className={`color-swatch${color === c ? ' selected' : ''}`}
-                    style={{ background: c }}
-                    onClick={() => setColor(c)}
-                    aria-label={`Select color ${c}`}
-                  />
-                ))}
-              </div>
+              <ColorPicker value={color} onChange={setColor} />
             </div>
           </div>
 

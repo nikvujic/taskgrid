@@ -52,6 +52,7 @@
   color: var(--text-h);
   line-height: 130%;
   word-break: break-word;
+  padding-right: 22px;
 }
 
 .board-card-dot {
