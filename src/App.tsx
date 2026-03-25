@@ -7,7 +7,6 @@ import ProtectedRoute from './router/ProtectedRoute';
 import LandingPage from './pages/LandingPage/LandingPage';
 import LoginPage from './pages/LoginPage/LoginPage';
 import BoardsPage from './pages/BoardsPage/BoardsPage';
-import BoardPage from './pages/BoardPage/BoardPage';
 
 function AppInitializer() {
   useEffect(() => {
@@ -25,7 +24,6 @@ function AppRoutes() {
         <Route path="/login" element={<LoginPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<BoardsPage />} />
-          <Route path="/board/:boardId" element={<BoardPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

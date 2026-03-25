@@ -1,19 +1,18 @@
-import { useNavigate } from 'react-router-dom';
 import type { Board } from '../../types';
 import './BoardCard.css';
 
 interface Props {
   board: Board;
+  onSelect: () => void;
+  isSelected: boolean;
 }
 
-export default function BoardCard({ board }: Props) {
-  const navigate = useNavigate();
-
+export default function BoardCard({ board, onSelect, isSelected }: Props) {
   return (
     <button
-      className="board-card"
+      className={`board-card${isSelected ? ' board-card--selected' : ''}`}
       style={{ '--card-color': board.color } as React.CSSProperties}
-      onClick={() => navigate(`/board/${board.id}`)}
+      onClick={onSelect}
     >
       <div className="board-card-accent" />
       <div className="board-card-body">

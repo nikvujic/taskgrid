@@ -1,25 +1,22 @@
-.boards-page {
+.workspace {
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 100svh;
+  height: 100svh;
+  overflow: hidden;
 }
 
-.boards-header {
+.workspace-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 28px;
+  padding: 0 24px;
   height: 52px;
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
-
-  @media (max-width: 640px) {
-    padding: 0 16px;
-  }
 }
 
-.boards-logo {
+.workspace-logo {
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -27,13 +24,13 @@
   color: var(--text-h);
 }
 
-.boards-header-right {
+.workspace-header-right {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.boards-user {
+.workspace-user {
   font-size: 13px;
   color: var(--text);
 
@@ -58,27 +55,148 @@
   }
 }
 
-.boards-main {
-  flex: 1;
-  padding: 36px 28px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
+/* ── Layout ─────────────────────────────────────── */
 
-  @media (max-width: 640px) {
-    padding: 24px 16px;
-  }
+.workspace-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
 }
 
-.boards-title-row {
+/* ── Sidebar ─────────────────────────────────────── */
+
+.boards-sidebar {
+  width: 210px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px 14px;
+  overflow-y: auto;
+}
+
+.sidebar-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 0 2px;
 }
 
-.boards-title {
-  font-size: 18px;
+.sidebar-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text);
+  opacity: 0.5;
+}
+
+.btn-new-board {
+  width: 22px;
+  height: 22px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s, border-color 0.12s;
+
+  &:hover {
+    background: var(--surface);
+    border-color: var(--text);
+  }
+}
+
+.sidebar-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn-create-first {
+  width: 100%;
+  padding: 9px 12px;
+  background: none;
+  border: 1px dashed var(--border);
+  border-radius: 7px;
+  font-size: 13px;
+  color: var(--text);
+  text-align: left;
+  transition: border-color 0.12s, color 0.12s;
+
+  &:hover {
+    border-color: var(--text);
+    color: var(--text-h);
+  }
+}
+
+/* ── Board view ──────────────────────────────────── */
+
+.board-view {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-left: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.board-view-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 24px;
+  height: 48px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.board-view-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--card-color, var(--accent));
+}
+
+.board-view-title {
+  font-size: 14px;
+  font-weight: 600;
   color: var(--text-h);
+  letter-spacing: -0.1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.board-lists {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 20px 24px 24px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  background: var(--surface);
+}
+
+.board-view-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: var(--text);
+
+  p {
+    font-size: 14px;
+    opacity: 0.6;
+  }
 }
 
 .btn-add-board {
@@ -89,31 +207,9 @@
   border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
-  white-space: nowrap;
   transition: opacity 0.15s;
 
   &:hover {
     opacity: 0.88;
-  }
-}
-
-.boards-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.boards-empty {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  color: var(--text);
-  min-height: 220px;
-
-  p {
-    font-size: 14px;
   }
 }
