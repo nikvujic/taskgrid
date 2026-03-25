@@ -15,6 +15,11 @@
   justify-content: space-between;
   gap: 8px;
   padding: 11px 12px 6px;
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
   flex-shrink: 0;
 }
 
@@ -83,6 +88,10 @@
 
 .list-column:hover .list-edit-btn {
   opacity: 1;
+}
+
+.list-footer:has(.add-card-form) .list-edit-btn {
+  display: none;
 }
 
 .list-edit-btn:hover {

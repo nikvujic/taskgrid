@@ -1,5 +1,7 @@
 import { useState, useRef } from 'react';
 import { Pencil } from 'lucide-react';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
 import { updateList } from '../../store/boardsSlice';
 import type { Board, List } from '../../types';
@@ -14,6 +16,7 @@ interface Props {
 
 export default function ListColumn({ board, list }: Props) {
   const dispatch = useAppDispatch();
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: list.id });
   const [editing, setEditing] = useState(false);
   const [nameValue, setNameValue] = useState(list.name);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -37,9 +40,15 @@ export default function ListColumn({ board, list }: Props) {
     if (e.key === 'Escape') setEditing(false);
   }
 
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : undefined,
+  };
+
   return (
-    <div className="list-column">
-      <div className="list-header">
+    <div className="list-column" ref={setNodeRef} style={style}>
+      <div className="list-header" data-drag-handle {...attributes} {...listeners}>
         {editing ? (
           <input
             ref={inputRef}

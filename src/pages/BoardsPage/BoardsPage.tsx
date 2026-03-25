@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
 import { useAppSelector } from '../../hooks/useAppSelector';
-import { loadBoards, deleteBoard } from '../../store/boardsSlice';
+import { loadBoards, deleteBoard, reorderLists } from '../../store/boardsSlice';
 import type { Board } from '../../types';
 import BoardCard from '../../components/BoardCard/BoardCard';
 import AddBoardModal from '../../components/AddBoardModal/AddBoardModal';
@@ -13,6 +13,9 @@ import ThemeToggle from '../../components/ThemeToggle/ThemeToggle';
 import ListColumn from '../../components/ListColumn/ListColumn';
 import AddListForm from '../../components/AddListForm/AddListForm';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import type { DragEndEvent } from '@dnd-kit/core';
+import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable';
 import { useDragScroll } from '../../hooks/useDragScroll';
 import './BoardsPage.css';
 
@@ -30,7 +33,21 @@ export default function BoardsPage() {
   }, [dispatch]);
 
   const selectedBoard = boards.find((b) => b.id === selectedBoardId) ?? null;
-  const { ref: listsRef, onMouseDown: listsMouseDown, onMouseMove: listsMouseMove, onMouseUp: listsMouseUp, onMouseLeave: listsMouseLeave } = useDragScroll();
+  const [isDndDragging, setIsDndDragging] = useState(false);
+  const { ref: listsRef, onMouseDown: listsMouseDown, onMouseMove: listsMouseMove, onMouseUp: listsMouseUp, onMouseLeave: listsMouseLeave } = useDragScroll(isDndDragging);
+
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
+
+  function handleDragEnd(event: DragEndEvent) {
+    setIsDndDragging(false);
+    const { active, over } = event;
+    if (!over || active.id === over.id || !selectedBoard) return;
+    const fromIndex = selectedBoard.lists.findIndex((l) => l.id === active.id);
+    const toIndex = selectedBoard.lists.findIndex((l) => l.id === over.id);
+    if (fromIndex !== -1 && toIndex !== -1) {
+      dispatch(reorderLists({ boardId: selectedBoard.id, fromIndex, toIndex }));
+    }
+  }
 
   function confirmDelete(board: Board) {
     dispatch(deleteBoard(board.id));
@@ -112,12 +129,16 @@ export default function BoardsPage() {
                   </button>
                 </div>
               </div>
-              <div className="board-lists" ref={listsRef} onMouseDown={listsMouseDown} onMouseMove={listsMouseMove} onMouseUp={listsMouseUp} onMouseLeave={listsMouseLeave}>
-                {selectedBoard.lists.map((list) => (
-                  <ListColumn key={list.id} board={selectedBoard} list={list} />
-                ))}
-                <AddListForm boardId={selectedBoard.id} color={selectedBoard.color} />
-              </div>
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={() => setIsDndDragging(true)} onDragEnd={handleDragEnd} onDragCancel={() => setIsDndDragging(false)}>
+                <SortableContext items={selectedBoard.lists.map((l) => l.id)} strategy={horizontalListSortingStrategy}>
+                  <div className="board-lists" ref={listsRef} onMouseDown={listsMouseDown} onMouseMove={listsMouseMove} onMouseUp={listsMouseUp} onMouseLeave={listsMouseLeave}>
+                    {selectedBoard.lists.map((list) => (
+                      <ListColumn key={list.id} board={selectedBoard} list={list} />
+                    ))}
+                    <AddListForm boardId={selectedBoard.id} color={selectedBoard.color} />
+                  </div>
+                </SortableContext>
+              </DndContext>
             </>
           ) : (
             <div className="board-view-empty">
