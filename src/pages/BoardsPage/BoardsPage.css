@@ -218,6 +218,7 @@
   overflow-x: auto;
   overflow-y: hidden;
   background: var(--surface);
+  user-select: none;
 }
 
 .board-view-empty {

@@ -190,6 +190,11 @@ const boardsSlice = createSlice({
       const board = state.boards.find((b) => b.id === action.payload.boardId);
       if (board) board.lists = board.lists.filter((l) => l.id !== action.payload.listId);
     },
+    listUpdated(state, action: PayloadAction<{ boardId: string; listId: string; name: string }>) {
+      const board = state.boards.find((b) => b.id === action.payload.boardId);
+      const list = board?.lists.find((l) => l.id === action.payload.listId);
+      if (list) list.name = action.payload.name;
+    },
     cardAdded(state, action: PayloadAction<{ boardId: string; listId: string; card: Card }>) {
       const board = state.boards.find((b) => b.id === action.payload.boardId);
       const list = board?.lists.find((l) => l.id === action.payload.listId);
@@ -213,7 +218,17 @@ export const {
   boardRemoved,
   listAdded,
   listRemoved,
+  listUpdated,
   cardAdded,
   cardRemoved,
 } = boardsSlice.actions;
 export default boardsSlice.reducer;
+
+export const updateList = createAsyncThunk(
+  'boards/updateList',
+  async (payload: { boardId: string; listId: string; name: string }, { getState, dispatch }) => {
+    dispatch(listUpdated(payload));
+    const state = getState() as RootState;
+    persist(state.boards, state);
+  },
+);

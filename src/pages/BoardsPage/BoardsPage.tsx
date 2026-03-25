@@ -13,6 +13,7 @@ import ThemeToggle from '../../components/ThemeToggle/ThemeToggle';
 import ListColumn from '../../components/ListColumn/ListColumn';
 import AddListForm from '../../components/AddListForm/AddListForm';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { useDragScroll } from '../../hooks/useDragScroll';
 import './BoardsPage.css';
 
 export default function BoardsPage() {
@@ -29,6 +30,7 @@ export default function BoardsPage() {
   }, [dispatch]);
 
   const selectedBoard = boards.find((b) => b.id === selectedBoardId) ?? null;
+  const { ref: listsRef, onMouseDown: listsMouseDown, onMouseMove: listsMouseMove, onMouseUp: listsMouseUp, onMouseLeave: listsMouseLeave } = useDragScroll();
 
   function confirmDelete(board: Board) {
     dispatch(deleteBoard(board.id));
@@ -110,7 +112,7 @@ export default function BoardsPage() {
                   </button>
                 </div>
               </div>
-              <div className="board-lists">
+              <div className="board-lists" ref={listsRef} onMouseDown={listsMouseDown} onMouseMove={listsMouseMove} onMouseUp={listsMouseUp} onMouseLeave={listsMouseLeave}>
                 {selectedBoard.lists.map((list) => (
                   <ListColumn key={list.id} board={selectedBoard} list={list} />
                 ))}

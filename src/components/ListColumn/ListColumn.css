@@ -13,6 +13,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+  gap: 8px;
   padding: 11px 12px 6px;
   flex-shrink: 0;
 }
@@ -22,7 +23,6 @@
   font-weight: 600;
   color: var(--text-h);
   word-break: break-word;
-  padding-right: 8px;
 }
 
 .list-count {
@@ -51,7 +51,59 @@
   gap: 5px;
 }
 
-.list-column > .add-card-trigger,
-.list-column > .add-card-form {
-  margin: 4px 8px 8px;
+.list-footer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px 8px;
+}
+
+.list-footer > .add-card-trigger {
+  flex: 1;
+}
+
+.list-footer > .add-card-form {
+  flex: 1;
+}
+
+.list-edit-btn {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: 5px;
+  color: var(--text);
+  opacity: 0;
+  transition: opacity 0.15s, background 0.12s, color 0.12s;
+}
+
+.list-column:hover .list-edit-btn {
+  opacity: 1;
+}
+
+.list-edit-btn:hover {
+  background: var(--border);
+  color: var(--text-h);
+}
+
+.list-name-input {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-h);
+  background: var(--bg);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-family: inherit;
+  width: 0;
+  min-width: 0;
+
+  &:focus {
+    outline: none;
+  }
 }
