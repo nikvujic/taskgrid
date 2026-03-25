@@ -1,0 +1,11 @@
+.confirm-modal {
+  max-width: 300px;
+}
+
+.confirm-message {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 160%;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}

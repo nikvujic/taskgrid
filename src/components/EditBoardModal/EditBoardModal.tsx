@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
-import { addBoard } from '../../store/boardsSlice';
-import './AddBoardModal.css';
+import { updateBoard } from '../../store/boardsSlice';
+import type { Board } from '../../types';
+import '../../components/AddBoardModal/AddBoardModal.css';
 
 const COLORS = [
   '#2563eb',
@@ -15,19 +16,20 @@ const COLORS = [
 ];
 
 interface Props {
+  board: Board;
   onClose: () => void;
 }
 
-export default function AddBoardModal({ onClose }: Props) {
+export default function EditBoardModal({ board, onClose }: Props) {
   const dispatch = useAppDispatch();
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [color, setColor] = useState(COLORS[0]);
+  const [name, setName] = useState(board.name);
+  const [description, setDescription] = useState(board.description);
+  const [color, setColor] = useState(board.color);
 
   function handleSubmit(e: { preventDefault(): void }) {
     e.preventDefault();
     if (!name.trim()) return;
-    dispatch(addBoard({ name: name.trim(), description: description.trim(), color }));
+    dispatch(updateBoard({ id: board.id, updates: { name: name.trim(), description: description.trim(), color } }));
     onClose();
   }
 
@@ -37,9 +39,9 @@ export default function AddBoardModal({ onClose }: Props) {
 
   return (
     <div className="modal-backdrop" onClick={handleBackdropClick}>
-      <div className="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div className="modal" role="dialog" aria-modal="true" aria-labelledby="edit-board-title">
         <div className="modal-header">
-          <h2 id="modal-title">New Board</h2>
+          <h2 id="edit-board-title">Edit Board</h2>
           <button className="modal-close" onClick={onClose} aria-label="Close">
             ✕
           </button>
@@ -48,13 +50,12 @@ export default function AddBoardModal({ onClose }: Props) {
         <form onSubmit={handleSubmit}>
           <div className="modal-body">
             <div className="form-field">
-              <label htmlFor="board-name">Name</label>
+              <label htmlFor="edit-board-name">Name</label>
               <input
-                id="board-name"
+                id="edit-board-name"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Product Roadmap"
                 maxLength={50}
                 autoFocus
                 required
@@ -62,13 +63,12 @@ export default function AddBoardModal({ onClose }: Props) {
             </div>
 
             <div className="form-field">
-              <label htmlFor="board-desc">Description</label>
+              <label htmlFor="edit-board-desc">Description</label>
               <input
-                id="board-desc"
+                id="edit-board-desc"
                 type="text"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Optional short description"
                 maxLength={120}
               />
             </div>
@@ -95,7 +95,7 @@ export default function AddBoardModal({ onClose }: Props) {
               Cancel
             </button>
             <button type="submit" className="btn-primary" disabled={!name.trim()}>
-              Create Board
+              Save
             </button>
           </div>
         </form>

@@ -13,12 +13,16 @@ export default function AddCardForm({ boardId, listId }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [title, setTitle] = useState('');
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  function submit() {
     if (!title.trim()) return;
     dispatch(addCard({ boardId, listId, title: title.trim() }));
     setTitle('');
     setExpanded(false);
+  }
+
+  function handleSubmit(e: { preventDefault(): void }) {
+    e.preventDefault();
+    submit();
   }
 
   function handleCancel() {
@@ -41,12 +45,13 @@ export default function AddCardForm({ boardId, listId }: Props) {
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder="Card title"
+        maxLength={200}
         autoFocus
         rows={2}
         onKeyDown={(e) => {
           if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            handleSubmit(e as unknown as React.FormEvent);
+            submit();
           }
           if (e.key === 'Escape') handleCancel();
         }}

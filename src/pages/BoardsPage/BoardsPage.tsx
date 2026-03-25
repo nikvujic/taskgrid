@@ -1,21 +1,27 @@
 import { useEffect, useState } from 'react';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
 import { useAppSelector } from '../../hooks/useAppSelector';
-import { loadBoards } from '../../store/boardsSlice';
+import { loadBoards, deleteBoard } from '../../store/boardsSlice';
+import type { Board } from '../../types';
 import BoardCard from '../../components/BoardCard/BoardCard';
 import AddBoardModal from '../../components/AddBoardModal/AddBoardModal';
+import EditBoardModal from '../../components/EditBoardModal/EditBoardModal';
+import ConfirmModal from '../../components/ConfirmModal/ConfirmModal';
 import SignOutModal from '../../components/SignOutModal/SignOutModal';
 import ImportExport from '../../components/ImportExport/ImportExport';
 import ThemeToggle from '../../components/ThemeToggle/ThemeToggle';
 import ListColumn from '../../components/ListColumn/ListColumn';
 import AddListForm from '../../components/AddListForm/AddListForm';
+import { Plus, Pencil, Trash2 } from 'lucide-react';
 import './BoardsPage.css';
 
 export default function BoardsPage() {
   const dispatch = useAppDispatch();
   const boards = useAppSelector((state) => state.boards.boards);
-  const [showModal, setShowModal] = useState(false);
+  const [showAddBoard, setShowAddBoard] = useState(false);
   const [showSignOut, setShowSignOut] = useState(false);
+  const [editingBoard, setEditingBoard] = useState<Board | null>(null);
+  const [deletingBoard, setDeletingBoard] = useState<Board | null>(null);
   const [selectedBoardId, setSelectedBoardId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -23,6 +29,11 @@ export default function BoardsPage() {
   }, [dispatch]);
 
   const selectedBoard = boards.find((b) => b.id === selectedBoardId) ?? null;
+
+  function confirmDelete(board: Board) {
+    dispatch(deleteBoard(board.id));
+    if (selectedBoardId === board.id) setSelectedBoardId(null);
+  }
 
   return (
     <div className="workspace">
@@ -45,10 +56,10 @@ export default function BoardsPage() {
             <span className="sidebar-label">Boards</span>
             <button
               className="btn-new-board"
-              onClick={() => setShowModal(true)}
+              onClick={() => setShowAddBoard(true)}
               title="New board"
             >
-              +
+              <Plus size={14} strokeWidth={2.5} />
             </button>
           </div>
 
@@ -56,7 +67,7 @@ export default function BoardsPage() {
             {boards.length === 0 ? (
               <button
                 className="btn-create-first"
-                onClick={() => setShowModal(true)}
+                onClick={() => setShowAddBoard(true)}
               >
                 Create a board
               </button>
@@ -82,6 +93,22 @@ export default function BoardsPage() {
                   style={{ '--card-color': selectedBoard.color } as React.CSSProperties}
                 />
                 <h1 className="board-view-title">{selectedBoard.name}</h1>
+                <div className="board-view-actions">
+                  <button
+                    className="board-view-btn"
+                    onClick={() => setEditingBoard(selectedBoard)}
+                    title="Edit board"
+                  >
+                    <Pencil size={13} strokeWidth={1.8} />
+                  </button>
+                  <button
+                    className="board-view-btn board-view-btn--danger"
+                    onClick={() => setDeletingBoard(selectedBoard)}
+                    title="Delete board"
+                  >
+                    <Trash2 size={13} strokeWidth={1.8} />
+                  </button>
+                </div>
               </div>
               <div className="board-lists">
                 {selectedBoard.lists.map((list) => (
@@ -97,7 +124,7 @@ export default function BoardsPage() {
                   <p>No boards yet.</p>
                   <button
                     className="btn-add-board"
-                    onClick={() => setShowModal(true)}
+                    onClick={() => setShowAddBoard(true)}
                   >
                     Create your first board
                   </button>
@@ -110,7 +137,17 @@ export default function BoardsPage() {
         </main>
       </div>
 
-      {showModal && <AddBoardModal onClose={() => setShowModal(false)} />}
+      {showAddBoard && <AddBoardModal onClose={() => setShowAddBoard(false)} />}
+      {editingBoard && <EditBoardModal board={editingBoard} onClose={() => setEditingBoard(null)} />}
+      {deletingBoard && (
+        <ConfirmModal
+          title="Delete board"
+          message={`"${deletingBoard.name}" and all its lists and cards will be permanently deleted.`}
+          confirmLabel="Delete"
+          onConfirm={() => confirmDelete(deletingBoard)}
+          onClose={() => setDeletingBoard(null)}
+        />
+      )}
       {showSignOut && <SignOutModal onClose={() => setShowSignOut(false)} />}
     </div>
   );

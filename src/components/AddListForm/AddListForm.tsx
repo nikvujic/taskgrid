@@ -12,7 +12,7 @@ export default function AddListForm({ boardId }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [name, setName] = useState('');
 
-  function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: { preventDefault(): void }) {
     e.preventDefault();
     if (!name.trim()) return;
     dispatch(addList({ boardId, name: name.trim() }));
@@ -44,6 +44,7 @@ export default function AddListForm({ boardId }: Props) {
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="List name"
+          maxLength={50}
           autoFocus
           onKeyDown={(e) => {
             if (e.key === 'Escape') handleCancel();
