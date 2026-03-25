@@ -4,9 +4,10 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
 import { updateList } from '../../store/boardsSlice';
-import type { Board, List } from '../../types';
+import type { Board, List, Card } from '../../types';
 import CardItem from '../CardItem/CardItem';
 import AddCardForm from '../AddCardForm/AddCardForm';
+import EditCardModal from '../EditCardModal/EditCardModal';
 import './ListColumn.css';
 
 interface Props {
@@ -19,6 +20,7 @@ export default function ListColumn({ board, list }: Props) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: list.id });
   const [editing, setEditing] = useState(false);
   const [nameValue, setNameValue] = useState(list.name);
+  const [editingCard, setEditingCard] = useState<Card | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   function startEditing() {
@@ -67,7 +69,7 @@ export default function ListColumn({ board, list }: Props) {
       </div>
       <div className="list-cards">
         {list.cards.map((card) => (
-          <CardItem key={card.id} card={card} />
+          <CardItem key={card.id} card={card} onClick={() => setEditingCard(card)} />
         ))}
       </div>
       <div className="list-footer">
@@ -76,6 +78,14 @@ export default function ListColumn({ board, list }: Props) {
           <Pencil size={12} strokeWidth={1.8} />
         </button>
       </div>
+      {editingCard && (
+        <EditCardModal
+          boardId={board.id}
+          listId={list.id}
+          card={editingCard}
+          onClose={() => setEditingCard(null)}
+        />
+      )}
     </div>
   );
 }

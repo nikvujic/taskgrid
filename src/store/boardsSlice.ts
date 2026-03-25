@@ -206,6 +206,15 @@ const boardsSlice = createSlice({
       const list = board?.lists.find((l) => l.id === action.payload.listId);
       list?.cards.push(action.payload.card);
     },
+    cardUpdated(
+      state,
+      action: PayloadAction<{ boardId: string; listId: string; cardId: string; updates: Partial<Pick<Card, 'title' | 'description'>> }>,
+    ) {
+      const board = state.boards.find((b) => b.id === action.payload.boardId);
+      const list = board?.lists.find((l) => l.id === action.payload.listId);
+      const card = list?.cards.find((c) => c.id === action.payload.cardId);
+      if (card) Object.assign(card, action.payload.updates);
+    },
     cardRemoved(
       state,
       action: PayloadAction<{ boardId: string; listId: string; cardId: string }>,
@@ -227,6 +236,7 @@ export const {
   listRemoved,
   listUpdated,
   cardAdded,
+  cardUpdated,
   cardRemoved,
 } = boardsSlice.actions;
 export default boardsSlice.reducer;
@@ -235,6 +245,18 @@ export const reorderLists = createAsyncThunk(
   'boards/reorderLists',
   async (payload: { boardId: string; fromIndex: number; toIndex: number }, { getState, dispatch }) => {
     dispatch(listsReordered(payload));
+    const state = getState() as RootState;
+    persist(state.boards, state);
+  },
+);
+
+export const updateCard = createAsyncThunk(
+  'boards/updateCard',
+  async (
+    payload: { boardId: string; listId: string; cardId: string; updates: Partial<Pick<Card, 'title' | 'description'>> },
+    { getState, dispatch },
+  ) => {
+    dispatch(cardUpdated(payload));
     const state = getState() as RootState;
     persist(state.boards, state);
   },
