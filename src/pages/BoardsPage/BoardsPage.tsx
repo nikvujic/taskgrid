@@ -114,7 +114,7 @@ export default function BoardsPage() {
                 {selectedBoard.lists.map((list) => (
                   <ListColumn key={list.id} board={selectedBoard} list={list} />
                 ))}
-                <AddListForm boardId={selectedBoard.id} />
+                <AddListForm boardId={selectedBoard.id} color={selectedBoard.color} />
               </div>
             </>
           ) : (

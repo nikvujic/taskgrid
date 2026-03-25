@@ -5,9 +5,10 @@ import './AddListForm.css';
 
 interface Props {
   boardId: string;
+  color: string;
 }
 
-export default function AddListForm({ boardId }: Props) {
+export default function AddListForm({ boardId, color }: Props) {
   const dispatch = useAppDispatch();
   const [expanded, setExpanded] = useState(false);
   const [name, setName] = useState('');
@@ -27,7 +28,7 @@ export default function AddListForm({ boardId }: Props) {
 
   if (!expanded) {
     return (
-      <div className="add-list-trigger-wrap">
+      <div className="add-list-trigger-wrap" style={{ '--board-color': color } as React.CSSProperties}>
         <button className="add-list-trigger" onClick={() => setExpanded(true)}>
           + Add a list
         </button>
