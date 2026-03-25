@@ -26,6 +26,8 @@ export function useDragScroll(disabled?: boolean) {
     const el = nodeRef.current;
     if (!el) return;
     if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+    if ((e.target as HTMLElement).closest('.list-column')) return;
+
     e.preventDefault();
     el.scrollBy({ left: e.deltaY * 1.5, behavior: 'smooth' });
   }
@@ -50,7 +52,7 @@ export function useDragScroll(disabled?: boolean) {
 
   function onMouseDown(e: React.MouseEvent) {
     if (disabled) return;
-    if ((e.target as HTMLElement).closest('button, input, textarea, [data-drag-handle]')) return;
+    if ((e.target as HTMLElement).closest('button, input, textarea, [data-drag-handle], .list-column')) return;
     cancelMomentum();
     dragging.current = true;
     startX.current = e.pageX;

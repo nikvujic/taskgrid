@@ -6,7 +6,7 @@
   border-radius: 8px;
   display: flex;
   flex-direction: column;
-  max-height: calc(100vh - 130px);
+  max-height: calc(100vh - 170px);
 }
 
 .list-header {
@@ -50,6 +50,7 @@
 .list-cards {
   flex: 1;
   overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 4px 8px;
   display: flex;
   flex-direction: column;
