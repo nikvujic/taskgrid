@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
 import { useAppSelector } from '../../hooks/useAppSelector';
 import { loadBoards } from '../../store/boardsSlice';
-import { logout } from '../../store/authSlice';
 import BoardCard from '../../components/BoardCard/BoardCard';
 import AddBoardModal from '../../components/AddBoardModal/AddBoardModal';
+import SignOutModal from '../../components/SignOutModal/SignOutModal';
 import ImportExport from '../../components/ImportExport/ImportExport';
 import ThemeToggle from '../../components/ThemeToggle/ThemeToggle';
 import ListColumn from '../../components/ListColumn/ListColumn';
@@ -15,6 +15,7 @@ export default function BoardsPage() {
   const dispatch = useAppDispatch();
   const boards = useAppSelector((state) => state.boards.boards);
   const [showModal, setShowModal] = useState(false);
+  const [showSignOut, setShowSignOut] = useState(false);
   const [selectedBoardId, setSelectedBoardId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -32,7 +33,7 @@ export default function BoardsPage() {
           <span className="header-sep" />
           <ImportExport />
           <span className="header-sep" />
-          <button className="btn-logout" onClick={() => dispatch(logout())}>
+          <button className="btn-logout" onClick={() => setShowSignOut(true)}>
             Sign out
           </button>
         </div>
@@ -110,6 +111,7 @@ export default function BoardsPage() {
       </div>
 
       {showModal && <AddBoardModal onClose={() => setShowModal(false)} />}
+      {showSignOut && <SignOutModal onClose={() => setShowSignOut(false)} />}
     </div>
   );
 }
