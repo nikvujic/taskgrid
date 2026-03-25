@@ -14,8 +14,8 @@ export default function BoardCard({ board, onSelect, isSelected }: Props) {
       style={{ '--card-color': board.color } as React.CSSProperties}
       onClick={onSelect}
     >
-      <div className="board-card-accent" />
       <div className="board-card-body">
+        <div className="board-card-dot" />
         <span className="board-card-name">{board.name}</span>
         {board.description && (
           <span className="board-card-desc">{board.description}</span>

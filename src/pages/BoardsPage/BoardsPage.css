@@ -30,14 +30,13 @@
   gap: 10px;
 }
 
-.workspace-user {
-  font-size: 13px;
-  color: var(--text);
-
-  @media (max-width: 480px) {
-    display: none;
-  }
+.header-sep {
+  width: 1px;
+  height: 18px;
+  background: var(--border);
+  flex-shrink: 0;
 }
+
 
 .btn-logout {
   background: none;

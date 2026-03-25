@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { AuthMode, User } from '../types';
 import { apiService } from '../services/apiService';
+import { setBoards } from './boardsSlice';
 
 const AUTH_KEY = 'taskgrid_auth';
 const DATA_KEY = 'taskgrid_data';
@@ -48,6 +49,7 @@ export const login = createAsyncThunk(
 export const logout = createAsyncThunk('auth/logout', async (_, { dispatch }) => {
   localStorage.removeItem(AUTH_KEY);
   localStorage.removeItem(DATA_KEY);
+  dispatch(setBoards([]));
   dispatch(clearAuth());
 });
 

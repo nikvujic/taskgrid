@@ -14,8 +14,6 @@ import './BoardsPage.css';
 export default function BoardsPage() {
   const dispatch = useAppDispatch();
   const boards = useAppSelector((state) => state.boards.boards);
-  const mode = useAppSelector((state) => state.auth.mode);
-  const user = useAppSelector((state) => state.auth.user);
   const [showModal, setShowModal] = useState(false);
   const [selectedBoardId, setSelectedBoardId] = useState<string | null>(null);
 
@@ -30,14 +28,13 @@ export default function BoardsPage() {
       <header className="workspace-header">
         <span className="workspace-logo">taskgrid</span>
         <div className="workspace-header-right">
+          <ThemeToggle />
+          <span className="header-sep" />
           <ImportExport />
-          <span className="workspace-user">
-            {mode === 'guest' ? 'Guest' : (user?.name ?? 'Account')}
-          </span>
+          <span className="header-sep" />
           <button className="btn-logout" onClick={() => dispatch(logout())}>
             Sign out
           </button>
-          <ThemeToggle />
         </div>
       </header>
 
