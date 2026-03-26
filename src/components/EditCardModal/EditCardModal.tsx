@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Check, X } from 'lucide-react';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
 import { updateCard, deleteCard } from '../../store/boardsSlice';
@@ -44,7 +45,7 @@ export default function EditCardModal({ boardId, listId, card, onClose }: Props)
     if (e.key === 'Escape') onClose();
   }
 
-  return (
+  return createPortal(
     <div className="modal-backdrop" onClick={handleBackdropClick}>
       <div className="modal edit-card-modal" role="dialog" aria-modal="true" aria-labelledby="edit-card-title" onKeyDown={handleKeyDown}>
         <div className="modal-header">
@@ -93,6 +94,7 @@ export default function EditCardModal({ boardId, listId, card, onClose }: Props)
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
