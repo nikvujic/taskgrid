@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
 import { useAppSelector } from '../../hooks/useAppSelector';
 import { loadBoards, deleteBoard, reorderLists } from '../../store/boardsSlice';
@@ -13,11 +13,26 @@ import ThemeToggle from '../../components/ThemeToggle/ThemeToggle';
 import ListColumn from '../../components/ListColumn/ListColumn';
 import AddListForm from '../../components/AddListForm/AddListForm';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
-import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import type { DragEndEvent } from '@dnd-kit/core';
+import { DndContext, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import type { DragEndEvent, CollisionDetection } from '@dnd-kit/core';
 import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable';
 import { useDragScroll } from '../../hooks/useDragScroll';
 import './BoardsPage.css';
+
+const closestHorizontalCenter: CollisionDetection = ({ collisionRect, droppableRects, droppableContainers }) => {
+  const collisions: { id: string; data: { value: number } }[] = [];
+  const centerX = collisionRect.left + collisionRect.width / 2;
+
+  for (const container of droppableContainers) {
+    const rect = droppableRects.get(container.id);
+    if (!rect) continue;
+    const targetCenterX = rect.left + rect.width / 2;
+    const distance = Math.abs(centerX - targetCenterX);
+    collisions.push({ id: String(container.id), data: { value: distance } });
+  }
+
+  return collisions.sort((a, b) => a.data.value - b.data.value);
+};
 
 export default function BoardsPage() {
   const dispatch = useAppDispatch();
@@ -34,12 +49,34 @@ export default function BoardsPage() {
 
   const selectedBoard = boards.find((b) => b.id === selectedBoardId) ?? null;
   const [isDndDragging, setIsDndDragging] = useState(false);
-  const { ref: listsRef, onMouseDown: listsMouseDown, onMouseMove: listsMouseMove, onMouseUp: listsMouseUp, onMouseLeave: listsMouseLeave } = useDragScroll(isDndDragging);
+  const { ref: listsRef, nodeRef: listsNodeRef, onMouseDown: listsMouseDown, onMouseMove: listsMouseMove, onMouseUp: listsMouseUp, onMouseLeave: listsMouseLeave } = useDragScroll(isDndDragging);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
+  const scrollLockRef = useRef<(() => void) | null>(null);
+
+  function handleDragStart() {
+    setIsDndDragging(true);
+    const el = listsNodeRef.current;
+    if (el) {
+      const snap = el.scrollLeft;
+      const lock = () => { el.scrollLeft = snap; };
+      el.addEventListener('scroll', lock);
+      scrollLockRef.current = lock;
+      setTimeout(() => {
+        el.removeEventListener('scroll', lock);
+        if (scrollLockRef.current === lock) scrollLockRef.current = null;
+      }, 150);
+    }
+  }
+
   function handleDragEnd(event: DragEndEvent) {
     setIsDndDragging(false);
+    const el = listsNodeRef.current;
+    if (el && scrollLockRef.current) {
+      el.removeEventListener('scroll', scrollLockRef.current);
+      scrollLockRef.current = null;
+    }
     const { active, over } = event;
     if (!over || active.id === over.id || !selectedBoard) return;
     const fromIndex = selectedBoard.lists.findIndex((l) => l.id === active.id);
@@ -129,9 +166,9 @@ export default function BoardsPage() {
                   </button>
                 </div>
               </div>
-              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={() => setIsDndDragging(true)} onDragEnd={handleDragEnd} onDragCancel={() => setIsDndDragging(false)}>
+              <DndContext sensors={sensors} collisionDetection={closestHorizontalCenter} autoScroll={false} onDragStart={handleDragStart} onDragEnd={handleDragEnd} onDragCancel={() => setIsDndDragging(false)}>
                 <SortableContext items={selectedBoard.lists.map((l) => l.id)} strategy={horizontalListSortingStrategy}>
-                  <div className="board-lists" ref={listsRef} onMouseDown={listsMouseDown} onMouseMove={listsMouseMove} onMouseUp={listsMouseUp} onMouseLeave={listsMouseLeave}>
+                  <div className={`board-lists${isDndDragging ? ' is-dnd-dragging' : ''}`} ref={listsRef} onMouseDown={listsMouseDown} onMouseMove={listsMouseMove} onMouseUp={listsMouseUp} onMouseLeave={listsMouseLeave}>
                     {selectedBoard.lists.map((list) => (
                       <ListColumn key={list.id} board={selectedBoard} list={list} />
                     ))}

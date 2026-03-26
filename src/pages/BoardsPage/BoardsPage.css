@@ -221,6 +221,15 @@
   user-select: none;
 }
 
+
+.board-lists.is-dnd-dragging * {
+  pointer-events: none;
+}
+
+.board-lists.is-dnd-dragging {
+  cursor: grabbing;
+}
+
 .board-view-empty {
   flex: 1;
   display: flex;

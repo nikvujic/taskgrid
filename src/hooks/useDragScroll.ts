@@ -1,9 +1,11 @@
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useEffect } from 'react';
 
 const FRICTION = 0.92;
 
 export function useDragScroll(disabled?: boolean) {
   const nodeRef = useRef<HTMLDivElement | null>(null);
+  const disabledRef = useRef(disabled);
+  disabledRef.current = disabled;
   const dragging = useRef(false);
   const startX = useRef(0);
   const startScrollLeft = useRef(0);
@@ -21,6 +23,15 @@ export function useDragScroll(disabled?: boolean) {
       node.addEventListener('wheel', handleWheel, { passive: false });
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (disabled && dragging.current) {
+      dragging.current = false;
+      velocity.current = 0;
+      cancelMomentum();
+      if (nodeRef.current) nodeRef.current.style.cursor = '';
+    }
+  }, [disabled]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleWheel(e: WheelEvent) {
     const el = nodeRef.current;
@@ -64,7 +75,7 @@ export function useDragScroll(disabled?: boolean) {
   }
 
   function onMouseMove(e: React.MouseEvent) {
-    if (!dragging.current || !nodeRef.current) return;
+    if (!dragging.current || !nodeRef.current || disabledRef.current) return;
     e.preventDefault();
     const now = performance.now();
     const dt = now - lastTime.current;
@@ -81,5 +92,5 @@ export function useDragScroll(disabled?: boolean) {
     startMomentum();
   }
 
-  return { ref, onMouseDown, onMouseMove, onMouseUp, onMouseLeave: onMouseUp };
+  return { ref, nodeRef, onMouseDown, onMouseMove, onMouseUp, onMouseLeave: onMouseUp };
 }

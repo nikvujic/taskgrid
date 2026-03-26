@@ -42,14 +42,14 @@ export default function ListColumn({ board, list }: Props) {
     if (e.key === 'Escape') setEditing(false);
   }
 
-  const style = {
+  const style: React.CSSProperties = {
     transform: CSS.Translate.toString(transform),
-    transition,
-    opacity: isDragging ? 0.4 : undefined,
+    transition: transition ?? undefined,
+    zIndex: isDragging ? 10 : undefined,
   };
 
   return (
-    <div className="list-column" ref={setNodeRef} style={style}>
+    <div className={`list-column${isDragging ? ' is-dragging' : ''}`} ref={setNodeRef} style={style}>
       <div className="list-header" data-drag-handle {...attributes} {...listeners}>
         {editing ? (
           <input
