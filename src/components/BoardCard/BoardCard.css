@@ -9,11 +9,11 @@
   overflow: hidden;
   text-align: left;
   padding: 0;
-  transition: box-shadow 0.15s, border-color 0.15s;
+  transition: border-color 0.15s;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07), 0 2px 8px rgba(0, 0, 0, 0.04);
+  margin-bottom: 8px;
 
   &:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.08);
     border-color: var(--text);
   }
 
@@ -21,6 +21,10 @@
     outline: 2px solid var(--accent);
     outline-offset: 2px;
   }
+}
+
+.board-card--dragging {
+  cursor: grabbing;
 }
 
 .board-card--selected {
@@ -48,7 +52,7 @@
   font-size: 13px;
   font-weight: 600;
   color: var(--text-h);
-  line-height: 130%;
+  line-height: 17px;
   word-break: break-word;
   padding-right: 22px;
 }
@@ -66,7 +70,7 @@
 .board-card-desc {
   font-size: 11px;
   color: var(--text);
-  line-height: 150%;
+  line-height: 16px;
   word-break: break-word;
   opacity: 0.75;
 }

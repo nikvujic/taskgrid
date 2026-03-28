@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
 import { useAppSelector } from '../../hooks/useAppSelector';
-import { loadBoards, deleteBoard, reorderLists } from '../../store/boardsSlice';
+import { loadBoards, deleteBoard, reorderLists, reorderBoards } from '../../store/boardsSlice';
 import type { Board } from '../../types';
 import BoardCard from '../../components/BoardCard/BoardCard';
 import AddBoardModal from '../../components/AddBoardModal/AddBoardModal';
@@ -13,26 +13,10 @@ import ThemeToggle from '../../components/ThemeToggle/ThemeToggle';
 import ListColumn from '../../components/ListColumn/ListColumn';
 import AddListForm from '../../components/AddListForm/AddListForm';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
-import { DndContext, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import type { DragEndEvent, CollisionDetection } from '@dnd-kit/core';
-import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable';
+import { DragDropContext, Droppable } from '@hello-pangea/dnd';
+import type { DropResult } from '@hello-pangea/dnd';
 import { useDragScroll } from '../../hooks/useDragScroll';
 import './BoardsPage.css';
-
-const closestHorizontalCenter: CollisionDetection = ({ collisionRect, droppableRects, droppableContainers }) => {
-  const collisions: { id: string; data: { value: number } }[] = [];
-  const centerX = collisionRect.left + collisionRect.width / 2;
-
-  for (const container of droppableContainers) {
-    const rect = droppableRects.get(container.id);
-    if (!rect) continue;
-    const targetCenterX = rect.left + rect.width / 2;
-    const distance = Math.abs(centerX - targetCenterX);
-    collisions.push({ id: String(container.id), data: { value: distance } });
-  }
-
-  return collisions.sort((a, b) => a.data.value - b.data.value);
-};
 
 export default function BoardsPage() {
   const dispatch = useAppDispatch();
@@ -49,40 +33,64 @@ export default function BoardsPage() {
 
   const selectedBoard = boards.find((b) => b.id === selectedBoardId) ?? null;
   const [isDndDragging, setIsDndDragging] = useState(false);
-  const { ref: listsRef, nodeRef: listsNodeRef, onMouseDown: listsMouseDown, onMouseMove: listsMouseMove, onMouseUp: listsMouseUp, onMouseLeave: listsMouseLeave } = useDragScroll(isDndDragging);
+  const { ref: listsRef, onMouseDown: listsMouseDown, onMouseMove: listsMouseMove, onMouseUp: listsMouseUp, onMouseLeave: listsMouseLeave } = useDragScroll(isDndDragging);
 
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
+  const boardListsRef = useRef<HTMLDivElement | null>(null);
 
-  const scrollLockRef = useRef<(() => void) | null>(null);
+  useEffect(() => {
+    const el = boardListsRef.current;
+    if (!el) return;
 
-  function handleDragStart() {
-    setIsDndDragging(true);
-    const el = listsNodeRef.current;
-    if (el) {
-      const snap = el.scrollLeft;
-      const lock = () => { el.scrollLeft = snap; };
-      el.addEventListener('scroll', lock);
-      scrollLockRef.current = lock;
-      setTimeout(() => {
-        el.removeEventListener('scroll', lock);
-        if (scrollLockRef.current === lock) scrollLockRef.current = null;
-      }, 150);
+    let rafId = 0;
+    let mouseX = 0;
+    let active = false;
+
+    function tick() {
+      if (!active) return;
+      const rect = el!.getBoundingClientRect();
+      const edge = 120;
+      const maxSpeed = 14;
+      if (mouseX > 0 && mouseX < rect.left + edge) {
+        el!.scrollLeft -= maxSpeed * Math.max(0, 1 - (mouseX - rect.left) / edge);
+      } else if (mouseX > rect.right - edge) {
+        el!.scrollLeft += maxSpeed * Math.max(0, 1 - (rect.right - mouseX) / edge);
+      }
+      rafId = requestAnimationFrame(tick);
     }
-  }
 
-  function handleDragEnd(event: DragEndEvent) {
+    function onDragOver(e: DragEvent) {
+      mouseX = e.clientX;
+      if (!active) {
+        active = true;
+        rafId = requestAnimationFrame(tick);
+      }
+    }
+
+    function onDragStop() {
+      active = false;
+      cancelAnimationFrame(rafId);
+    }
+
+    el.addEventListener('dragover', onDragOver);
+    document.addEventListener('dragend', onDragStop);
+    document.addEventListener('drop', onDragStop);
+    return () => {
+      el.removeEventListener('dragover', onDragOver);
+      document.removeEventListener('dragend', onDragStop);
+      document.removeEventListener('drop', onDragStop);
+      cancelAnimationFrame(rafId);
+    };
+  }, [selectedBoard]);
+
+  function handleDragEnd(result: DropResult) {
     setIsDndDragging(false);
-    const el = listsNodeRef.current;
-    if (el && scrollLockRef.current) {
-      el.removeEventListener('scroll', scrollLockRef.current);
-      scrollLockRef.current = null;
-    }
-    const { active, over } = event;
-    if (!over || active.id === over.id || !selectedBoard) return;
-    const fromIndex = selectedBoard.lists.findIndex((l) => l.id === active.id);
-    const toIndex = selectedBoard.lists.findIndex((l) => l.id === over.id);
-    if (fromIndex !== -1 && toIndex !== -1) {
-      dispatch(reorderLists({ boardId: selectedBoard.id, fromIndex, toIndex }));
+    const { source, destination, type } = result;
+    if (!destination || (source.droppableId === destination.droppableId && source.index === destination.index)) return;
+
+    if (type === 'BOARD') {
+      dispatch(reorderBoards({ fromIndex: source.index, toIndex: destination.index }));
+    } else if (type === 'LIST' && selectedBoard) {
+      dispatch(reorderLists({ boardId: selectedBoard.id, fromIndex: source.index, toIndex: destination.index }));
     }
   }
 
@@ -106,96 +114,119 @@ export default function BoardsPage() {
         </div>
       </header>
 
-      <div className="workspace-body">
-        <aside className="boards-sidebar">
-          <div className="sidebar-top">
-            <span className="sidebar-label">Boards</span>
-            <button
-              className="btn-new-board"
-              onClick={() => setShowAddBoard(true)}
-              title="New board"
-            >
-              <Plus size={14} strokeWidth={2.5} />
-            </button>
-          </div>
-
-          <div className="sidebar-cards">
-            {boards.length === 0 ? (
+      <DragDropContext onDragStart={() => setIsDndDragging(true)} onDragEnd={handleDragEnd}>
+        <div className="workspace-body">
+          <aside className="boards-sidebar">
+            <div className="sidebar-top">
+              <span className="sidebar-label">Boards</span>
               <button
-                className="btn-create-first"
+                className="btn-new-board"
                 onClick={() => setShowAddBoard(true)}
+                title="New board"
               >
-                Create a board
+                <Plus size={14} strokeWidth={2.5} />
               </button>
-            ) : (
-              boards.map((board) => (
-                <BoardCard
-                  key={board.id}
-                  board={board}
-                  onSelect={() => setSelectedBoardId(board.id)}
-                  isSelected={selectedBoardId === board.id}
-                />
-              ))
-            )}
-          </div>
-        </aside>
-
-        <main className="board-view">
-          {selectedBoard ? (
-            <>
-              <div className="board-view-header">
-                <div
-                  className="board-view-dot"
-                  style={{ '--card-color': selectedBoard.color } as React.CSSProperties}
-                />
-                <h1 className="board-view-title">{selectedBoard.name}</h1>
-                <div className="board-view-actions">
-                  <button
-                    className="board-view-btn"
-                    onClick={() => setEditingBoard(selectedBoard)}
-                    title="Edit board"
-                  >
-                    <Pencil size={13} strokeWidth={1.8} />
-                  </button>
-                  <button
-                    className="board-view-btn board-view-btn--danger"
-                    onClick={() => setDeletingBoard(selectedBoard)}
-                    title="Delete board"
-                  >
-                    <Trash2 size={13} strokeWidth={1.8} />
-                  </button>
-                </div>
-              </div>
-              <DndContext sensors={sensors} collisionDetection={closestHorizontalCenter} autoScroll={false} onDragStart={handleDragStart} onDragEnd={handleDragEnd} onDragCancel={() => setIsDndDragging(false)}>
-                <SortableContext items={selectedBoard.lists.map((l) => l.id)} strategy={horizontalListSortingStrategy}>
-                  <div className={`board-lists${isDndDragging ? ' is-dnd-dragging' : ''}`} ref={listsRef} onMouseDown={listsMouseDown} onMouseMove={listsMouseMove} onMouseUp={listsMouseUp} onMouseLeave={listsMouseLeave}>
-                    {selectedBoard.lists.map((list) => (
-                      <ListColumn key={list.id} board={selectedBoard} list={list} />
-                    ))}
-                    <AddListForm boardId={selectedBoard.id} color={selectedBoard.color} />
-                  </div>
-                </SortableContext>
-              </DndContext>
-            </>
-          ) : (
-            <div className="board-view-empty">
-              {boards.length === 0 ? (
-                <>
-                  <p>No boards yet.</p>
-                  <button
-                    className="btn-add-board"
-                    onClick={() => setShowAddBoard(true)}
-                  >
-                    Create your first board
-                  </button>
-                </>
-              ) : (
-                <p>Select a board</p>
-              )}
             </div>
-          )}
-        </main>
-      </div>
+
+            {boards.length === 0 ? (
+              <div className="sidebar-cards">
+                <button
+                  className="btn-create-first"
+                  onClick={() => setShowAddBoard(true)}
+                >
+                  Create a board
+                </button>
+              </div>
+            ) : (
+              <Droppable droppableId="boards" type="BOARD">
+                {(provided) => (
+                  <div className="sidebar-cards" ref={provided.innerRef} {...provided.droppableProps}>
+                    {boards.map((board, index) => (
+                      <BoardCard
+                        key={board.id}
+                        board={board}
+                        index={index}
+                        onSelect={() => setSelectedBoardId(board.id)}
+                        isSelected={selectedBoardId === board.id}
+                      />
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            )}
+          </aside>
+
+          <main className="board-view">
+            {selectedBoard ? (
+              <>
+                <div className="board-view-header">
+                  <div
+                    className="board-view-dot"
+                    style={{ '--card-color': selectedBoard.color } as React.CSSProperties}
+                  />
+                  <h1 className="board-view-title">{selectedBoard.name}</h1>
+                  <div className="board-view-actions">
+                    <button
+                      className="board-view-btn"
+                      onClick={() => setEditingBoard(selectedBoard)}
+                      title="Edit board"
+                    >
+                      <Pencil size={13} strokeWidth={1.8} />
+                    </button>
+                    <button
+                      className="board-view-btn board-view-btn--danger"
+                      onClick={() => setDeletingBoard(selectedBoard)}
+                      title="Delete board"
+                    >
+                      <Trash2 size={13} strokeWidth={1.8} />
+                    </button>
+                  </div>
+                </div>
+                <Droppable droppableId="lists" type="LIST" direction="horizontal">
+                  {(provided) => (
+                    <div
+                      className={`board-lists${isDndDragging ? ' is-dnd-dragging' : ''}`}
+                      ref={(node: HTMLDivElement | null) => {
+                        provided.innerRef(node);
+                        listsRef(node);
+                        boardListsRef.current = node;
+                      }}
+                      {...provided.droppableProps}
+                      onMouseDown={listsMouseDown}
+                      onMouseMove={listsMouseMove}
+                      onMouseUp={listsMouseUp}
+                      onMouseLeave={listsMouseLeave}
+                    >
+                      {selectedBoard.lists.map((list, index) => (
+                        <ListColumn key={list.id} board={selectedBoard} list={list} index={index} />
+                      ))}
+                      {provided.placeholder}
+                      <AddListForm boardId={selectedBoard.id} color={selectedBoard.color} />
+                    </div>
+                  )}
+                </Droppable>
+              </>
+            ) : (
+              <div className="board-view-empty">
+                {boards.length === 0 ? (
+                  <>
+                    <p>No boards yet.</p>
+                    <button
+                      className="btn-add-board"
+                      onClick={() => setShowAddBoard(true)}
+                    >
+                      Create your first board
+                    </button>
+                  </>
+                ) : (
+                  <p>Select a board</p>
+                )}
+              </div>
+            )}
+          </main>
+        </div>
+      </DragDropContext>
 
       {showAddBoard && <AddBoardModal onClose={() => setShowAddBoard(false)} />}
       {editingBoard && <EditBoardModal board={editingBoard} onClose={() => setEditingBoard(null)} />}

@@ -186,6 +186,10 @@ const boardsSlice = createSlice({
       const board = state.boards.find((b) => b.id === action.payload.boardId);
       board?.lists.push(action.payload.list);
     },
+    boardsReordered(state, action: PayloadAction<{ fromIndex: number; toIndex: number }>) {
+      const [moved] = state.boards.splice(action.payload.fromIndex, 1);
+      state.boards.splice(action.payload.toIndex, 0, moved);
+    },
     listsReordered(state, action: PayloadAction<{ boardId: string; fromIndex: number; toIndex: number }>) {
       const board = state.boards.find((b) => b.id === action.payload.boardId);
       if (!board) return;
@@ -223,6 +227,30 @@ const boardsSlice = createSlice({
       const list = board?.lists.find((l) => l.id === action.payload.listId);
       if (list) list.cards = list.cards.filter((c) => c.id !== action.payload.cardId);
     },
+    cardMoved(
+      state,
+      action: PayloadAction<{
+        boardId: string;
+        sourceListId: string;
+        destinationListId: string;
+        sourceIndex: number;
+        destinationIndex: number;
+      }>,
+    ) {
+      const board = state.boards.find((b) => b.id === action.payload.boardId);
+      if (!board) return;
+      const sourceList = board.lists.find((l) => l.id === action.payload.sourceListId);
+      if (!sourceList) return;
+      const [movedCard] = sourceList.cards.splice(action.payload.sourceIndex, 1);
+      if (!movedCard) return;
+      if (action.payload.sourceListId === action.payload.destinationListId) {
+        sourceList.cards.splice(action.payload.destinationIndex, 0, movedCard);
+      } else {
+        const destList = board.lists.find((l) => l.id === action.payload.destinationListId);
+        if (!destList) return;
+        destList.cards.splice(action.payload.destinationIndex, 0, movedCard);
+      }
+    },
   },
 });
 
@@ -231,6 +259,7 @@ export const {
   boardAdded,
   boardUpdated,
   boardRemoved,
+  boardsReordered,
   listAdded,
   listsReordered,
   listRemoved,
@@ -238,8 +267,18 @@ export const {
   cardAdded,
   cardUpdated,
   cardRemoved,
+  cardMoved,
 } = boardsSlice.actions;
 export default boardsSlice.reducer;
+
+export const reorderBoards = createAsyncThunk(
+  'boards/reorderBoards',
+  async (payload: { fromIndex: number; toIndex: number }, { getState, dispatch }) => {
+    dispatch(boardsReordered(payload));
+    const state = getState() as RootState;
+    persist(state.boards, state);
+  },
+);
 
 export const reorderLists = createAsyncThunk(
   'boards/reorderLists',
@@ -266,6 +305,24 @@ export const updateList = createAsyncThunk(
   'boards/updateList',
   async (payload: { boardId: string; listId: string; name: string }, { getState, dispatch }) => {
     dispatch(listUpdated(payload));
+    const state = getState() as RootState;
+    persist(state.boards, state);
+  },
+);
+
+export const moveCard = createAsyncThunk(
+  'boards/moveCard',
+  async (
+    payload: {
+      boardId: string;
+      sourceListId: string;
+      destinationListId: string;
+      sourceIndex: number;
+      destinationIndex: number;
+    },
+    { getState, dispatch },
+  ) => {
+    dispatch(cardMoved(payload));
     const state = getState() as RootState;
     persist(state.boards, state);
   },
