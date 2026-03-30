@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>taskgrid</title>
     <script>
-      const saved = localStorage.getItem('taskgrid_theme');
-      document.documentElement.setAttribute('data-theme', saved ?? 'dark');
+      const saved = localStorage.getItem('taskgrid_theme') ?? 'dark';
+      document.documentElement.setAttribute('data-theme', saved);
+      document.documentElement.style.background = saved === 'dark' ? '#1e1e21' : '#f3f3f1';
     </script>
   </head>
   <body>

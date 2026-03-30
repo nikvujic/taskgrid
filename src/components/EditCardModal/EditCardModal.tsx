@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Check, X } from 'lucide-react';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
@@ -19,6 +19,8 @@ export default function EditCardModal({ boardId, listId, card, onClose }: Props)
   const [title, setTitle] = useState(card.title);
   const [description, setDescription] = useState(card.description ?? '');
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const descRef = useRef<HTMLTextAreaElement>(null);
+  const saveRef = useRef<HTMLButtonElement>(null);
 
   function handleBackdropClick(e: React.MouseEvent) {
     if (e.target === e.currentTarget) onClose();
@@ -61,6 +63,12 @@ export default function EditCardModal({ boardId, listId, card, onClose }: Props)
               onChange={(e) => setTitle(e.target.value)}
               maxLength={120}
               autoFocus
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  descRef.current?.focus();
+                }
+              }}
             />
           </div>
           <div className="form-field">
@@ -68,6 +76,7 @@ export default function EditCardModal({ boardId, listId, card, onClose }: Props)
             <textarea
               id="card-desc-input"
               className="card-desc-textarea"
+              ref={descRef}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
@@ -90,7 +99,7 @@ export default function EditCardModal({ boardId, listId, card, onClose }: Props)
           )}
           <div className="edit-card-footer-right">
             <button className="btn-ghost" onClick={onClose}>Cancel</button>
-            <button className="btn-primary" onClick={handleSave} disabled={!title.trim()}>Save</button>
+            <button className="btn-primary" ref={saveRef} onClick={handleSave} disabled={!title.trim()}>Save</button>
           </div>
         </div>
       </div>

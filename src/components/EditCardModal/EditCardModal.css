@@ -12,6 +12,7 @@
   font-family: inherit;
   line-height: 160%;
   resize: vertical;
+  min-height: 80px;
   transition: border-color 0.15s, box-shadow 0.15s;
 
   &::placeholder {
