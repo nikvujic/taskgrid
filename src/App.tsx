@@ -24,6 +24,7 @@ function AppRoutes() {
         <Route path="/login" element={<LoginPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<BoardsPage />} />
+          <Route path="/:boardId" element={<BoardsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

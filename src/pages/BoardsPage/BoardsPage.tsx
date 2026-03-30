@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
 import { useAppSelector } from '../../hooks/useAppSelector';
 import { loadBoards, deleteBoard, reorderLists, reorderBoards } from '../../store/boardsSlice';
@@ -20,11 +21,12 @@ import './BoardsPage.css';
 export default function BoardsPage() {
   const dispatch = useAppDispatch();
   const boards = useAppSelector((state) => state.boards.boards);
+  const { boardId: selectedBoardId } = useParams<{ boardId: string }>();
+  const navigate = useNavigate();
   const [showAddBoard, setShowAddBoard] = useState(false);
   const [showSignOut, setShowSignOut] = useState(false);
   const [editingBoard, setEditingBoard] = useState<Board | null>(null);
   const [deletingBoard, setDeletingBoard] = useState<Board | null>(null);
-  const [selectedBoardId, setSelectedBoardId] = useState<string | null>(null);
 
   useEffect(() => {
     dispatch(loadBoards());
@@ -95,7 +97,7 @@ export default function BoardsPage() {
 
   function confirmDelete(board: Board) {
     dispatch(deleteBoard(board.id));
-    if (selectedBoardId === board.id) setSelectedBoardId(null);
+    if (selectedBoardId === board.id) navigate('/');
   }
 
   return (
@@ -143,7 +145,7 @@ export default function BoardsPage() {
                         key={board.id}
                         board={board}
                         index={index}
-                        onSelect={() => setSelectedBoardId(board.id)}
+                        onSelect={() => navigate(`/${board.id}`)}
                         isSelected={selectedBoardId === board.id}
                       />
                     ))}
