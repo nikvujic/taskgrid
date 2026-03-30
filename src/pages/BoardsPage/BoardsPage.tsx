@@ -9,7 +9,6 @@ import EditBoardModal from '../../components/EditBoardModal/EditBoardModal';
 import ConfirmModal from '../../components/ConfirmModal/ConfirmModal';
 import SignOutModal from '../../components/SignOutModal/SignOutModal';
 import ImportExport from '../../components/ImportExport/ImportExport';
-import ThemeToggle from '../../components/ThemeToggle/ThemeToggle';
 import ListColumn from '../../components/ListColumn/ListColumn';
 import AddListForm from '../../components/AddListForm/AddListForm';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
@@ -104,8 +103,6 @@ export default function BoardsPage() {
       <header className="workspace-header">
         <span className="workspace-logo">taskgrid</span>
         <div className="workspace-header-right">
-          <ThemeToggle />
-          <span className="header-sep" />
           <ImportExport />
           <span className="header-sep" />
           <button className="btn-logout" onClick={() => setShowSignOut(true)}>

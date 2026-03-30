@@ -17,7 +17,7 @@ export default function BoardCard({ board, index, onSelect, isSelected }: Props)
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          style={{ ...provided.draggableProps.style, '--card-color': board.color } as unknown as React.CSSProperties}
+          style={{ ...provided.draggableProps.style, '--card-color': board.color, cursor: snapshot.isDragging ? 'grabbing' : 'pointer' } as unknown as React.CSSProperties}
           className={`board-card${isSelected ? ' board-card--selected' : ''}${snapshot.isDragging ? ' board-card--dragging' : ''}`}
           role="button"
           tabIndex={0}

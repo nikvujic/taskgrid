@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import ThemeToggle from '../../components/ThemeToggle/ThemeToggle';
 import './LandingPage.css';
 
 export default function LandingPage() {
@@ -7,9 +6,6 @@ export default function LandingPage() {
 
   return (
     <div className="landing">
-      <div className="landing-topbar">
-        <ThemeToggle />
-      </div>
       <div className="landing-inner">
         <div className="landing-content">
           <div className="landing-badge">taskgrid</div>

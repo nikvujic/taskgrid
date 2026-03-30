@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
 import { useAppSelector } from '../../hooks/useAppSelector';
 import { login, loginAsGuest } from '../../store/authSlice';
-import ThemeToggle from '../../components/ThemeToggle/ThemeToggle';
 import './LoginPage.css';
 
 export default function LoginPage() {
@@ -41,9 +40,6 @@ export default function LoginPage() {
 
   return (
     <div className="login-page">
-      <div className="login-topbar">
-        <ThemeToggle />
-      </div>
       <div className="login-box-outer">
         <div className="login-box">
           <div className="login-header">
