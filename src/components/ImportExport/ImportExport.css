@@ -23,3 +23,17 @@
     outline-offset: 2px;
   }
 }
+
+.import-example {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 160%;
+  color: var(--text);
+  white-space: pre;
+  overflow-x: auto;
+}

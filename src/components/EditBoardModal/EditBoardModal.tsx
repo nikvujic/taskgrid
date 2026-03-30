@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
 import { updateBoard } from '../../store/boardsSlice';
 import type { Board } from '../../types';
@@ -27,7 +28,7 @@ export default function EditBoardModal({ board, onClose }: Props) {
     if (e.target === e.currentTarget) onClose();
   }
 
-  return (
+  return createPortal(
     <div className="modal-backdrop" onClick={handleBackdropClick}>
       <div className="modal" role="dialog" aria-modal="true" aria-labelledby="edit-board-title">
         <div className="modal-header">
@@ -79,6 +80,7 @@ export default function EditBoardModal({ board, onClose }: Props) {
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
