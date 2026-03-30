@@ -1,28 +1,133 @@
 .login-page {
   flex: 1;
   display: flex;
-  flex-direction: column;
 }
 
-.login-topbar {
-  display: flex;
-  justify-content: flex-end;
-  padding: 12px 20px;
-  border-bottom: 1px solid var(--border);
-}
+/* ── Brand panel ──────────────────────────────── */
 
-.login-box-outer {
+.login-brand {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 48px;
+  padding-bottom: calc(48px + 15%);
+  background: linear-gradient(160deg, #1e40af 0%, #2563eb 60%, #3b82f6 100%);
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+[data-theme='dark'] .login-brand {
+  background: linear-gradient(160deg, #0f172a 0%, #1e3a5f 60%, #1e40af 100%);
+}
+
+.login-brand-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 360px;
+}
+
+.login-brand-content > * {
+  animation: brandFadeUp 0.5s ease-out both;
+}
+
+.login-brand-content > *:nth-child(1) { animation-delay: 0s; }
+.login-brand-content > *:nth-child(2) { animation-delay: 0.08s; }
+.login-brand-content > *:nth-child(3) { animation-delay: 0.16s; }
+
+@keyframes brandFadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes panelSlideIn {
+  from { opacity: 0; transform: translateX(24px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.login-brand-logo {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.login-brand-title {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.8px;
+  line-height: 120%;
+  color: #fff;
+}
+
+.login-brand-desc {
+  font-size: 15px;
+  line-height: 160%;
+  opacity: 0.6;
+}
+
+/* ── Decorative cards ─────────────────────────── */
+
+.login-brand-decor {
+  position: absolute;
+  bottom: -20px;
+  right: -20px;
+  width: 280px;
+  height: 280px;
+}
+
+.decor-card {
+  position: absolute;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.decor-card--1 {
+  width: 160px;
+  height: 90px;
+  bottom: 80px;
+  right: 40px;
+  transform: rotate(-6deg);
+}
+
+.decor-card--2 {
+  width: 140px;
+  height: 80px;
+  bottom: 40px;
+  right: 100px;
+  transform: rotate(3deg);
+}
+
+.decor-card--3 {
+  width: 120px;
+  height: 70px;
+  bottom: 120px;
+  right: 130px;
+  transform: rotate(-2deg);
+}
+
+/* ── Form panel ───────────────────────────────── */
+
+.login-panel {
+  width: 480px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 48px 24px;
+  padding: 48px;
 }
 
-.login-box {
+.login-panel-inner {
   width: 100%;
-  max-width: 360px;
+  max-width: 340px;
   display: flex;
+  animation: panelSlideIn 0.35s ease-out 0.15s both;
   flex-direction: column;
   gap: 28px;
 }
@@ -33,17 +138,23 @@
   gap: 6px;
 }
 
-.login-logo {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--accent);
-}
-
 .login-title {
   font-size: 24px;
   color: var(--text-h);
+}
+
+.login-subtitle {
+  font-size: 14px;
+  color: var(--text);
+}
+
+/* ── Form ─────────────────────────────────────── */
+
+.login-form-header {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-h);
+  margin-bottom: -14px;
 }
 
 .login-form {
@@ -117,7 +228,7 @@
   }
 }
 
-.btn-secondary {
+.btn-login {
   width: 100%;
   padding: 10px 16px;
   background: transparent;
@@ -128,9 +239,14 @@
   font-weight: 500;
   transition: background 0.15s, border-color 0.15s;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: var(--surface);
     border-color: var(--text);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
   &:focus-visible {
@@ -138,6 +254,15 @@
     outline-offset: 3px;
   }
 }
+
+.login-invite-note {
+  font-size: 12px;
+  color: var(--text);
+  opacity: 0.6;
+  text-align: center;
+}
+
+/* ── Divider ──────────────────────────────────── */
 
 .login-divider {
   display: flex;
@@ -171,4 +296,30 @@
   color: var(--text);
   line-height: 160%;
   text-align: center;
+}
+
+/* ── Responsive ───────────────────────────────── */
+
+@media (max-width: 860px) {
+  .login-page {
+    flex-direction: column;
+  }
+
+  .login-brand {
+    padding: 32px 24px;
+  }
+
+  .login-brand-title {
+    font-size: 24px;
+  }
+
+  .login-brand-decor {
+    display: none;
+  }
+
+  .login-panel {
+    width: 100%;
+    flex: 1;
+    padding: 32px 24px;
+  }
 }
