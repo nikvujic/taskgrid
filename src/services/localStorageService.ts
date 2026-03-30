@@ -1,6 +1,6 @@
 import type { AppData } from '../types';
 
-const DATA_KEY = 'taskgrid_data';
+const DATA_KEY = 'sk_data';
 
 export const localStorageService = {
   load(): AppData {

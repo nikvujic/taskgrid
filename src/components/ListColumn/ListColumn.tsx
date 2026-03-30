@@ -103,7 +103,7 @@ export default function ListColumn({ board, list, index }: Props) {
   }
 
   function handleDragOver(e: React.DragEvent<HTMLDivElement>) {
-    if (!e.dataTransfer.types.includes('application/taskgrid-card')) return;
+    if (!e.dataTransfer.types.includes('application/sk-card')) return;
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
     const container = listCardsRef.current;
@@ -124,7 +124,7 @@ export default function ListColumn({ board, list, index }: Props) {
 
   function handleDrop(e: React.DragEvent<HTMLDivElement>) {
     e.preventDefault();
-    const raw = e.dataTransfer.getData('application/taskgrid-card');
+    const raw = e.dataTransfer.getData('application/sk-card');
     if (!raw) return;
     const { sourceListId, sourceIndex } = JSON.parse(raw) as {
       cardId: string;

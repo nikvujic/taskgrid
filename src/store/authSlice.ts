@@ -4,8 +4,8 @@ import type { AuthMode, User } from '../types';
 import { apiService } from '../services/apiService';
 import { setBoards } from './boardsSlice';
 
-const AUTH_KEY = 'taskgrid_auth';
-const DATA_KEY = 'taskgrid_data';
+const AUTH_KEY = 'sk_auth';
+const DATA_KEY = 'sk_data';
 
 interface AuthState {
   mode: AuthMode | null;

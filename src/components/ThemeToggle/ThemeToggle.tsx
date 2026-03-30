@@ -34,7 +34,7 @@ export default function ThemeToggle() {
     const next = theme === 'light' ? 'dark' : 'light';
     setTheme(next);
     document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem('taskgrid_theme', next);
+    localStorage.setItem('sk_theme', next);
   }
 
   return (

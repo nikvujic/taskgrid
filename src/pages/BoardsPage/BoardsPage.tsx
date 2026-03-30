@@ -101,7 +101,7 @@ export default function BoardsPage() {
   return (
     <div className="workspace">
       <header className="workspace-header">
-        <span className="workspace-logo">taskgrid</span>
+        <span className="workspace-logo">simple kanban</span>
         <div className="workspace-header-right">
           <ImportExport />
           <span className="header-sep" />

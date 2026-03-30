@@ -11,7 +11,7 @@ interface Props {
 export default function CardItem({ card, index, listId, onClick }: Props) {
   function handleDragStart(e: React.DragEvent) {
     e.dataTransfer.setData(
-      'application/taskgrid-card',
+      'application/sk-card',
       JSON.stringify({ cardId: card.id, sourceListId: listId, sourceIndex: index }),
     );
     e.dataTransfer.effectAllowed = 'move';

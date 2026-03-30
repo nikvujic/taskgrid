@@ -134,7 +134,7 @@ export const exportData = createAsyncThunk('boards/exportData', async (_, { getS
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `taskgrid-export-${new Date().toISOString().slice(0, 10)}.json`;
+  a.download = `simple-kanban-export-${new Date().toISOString().slice(0, 10)}.json`;
   a.click();
   URL.revokeObjectURL(url);
 });

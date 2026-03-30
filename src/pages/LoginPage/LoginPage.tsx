@@ -43,7 +43,7 @@ export default function LoginPage() {
       <div className="login-box-outer">
         <div className="login-box">
           <div className="login-header">
-            <span className="login-logo">taskgrid</span>
+            <span className="login-logo">simple kanban</span>
             <h1 className="login-title">Sign in</h1>
           </div>
 
