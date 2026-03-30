@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
 import { useAppSelector } from '../../hooks/useAppSelector';
-import { loadBoards, deleteBoard, reorderLists, reorderBoards } from '../../store/boardsSlice';
+import { loadBoards, loadBoardContent, deleteBoard, reorderLists, reorderBoards } from '../../store/boardsSlice';
 import type { Board } from '../../types';
 import BoardCard from '../../components/BoardCard/BoardCard';
 import AddBoardModal from '../../components/AddBoardModal/AddBoardModal';
@@ -21,6 +21,8 @@ import './BoardsPage.css';
 export default function BoardsPage() {
   const dispatch = useAppDispatch();
   const boards = useAppSelector((state) => state.boards.boards);
+  const isBoardsLoading = useAppSelector((state) => state.boards.isLoading);
+  const isContentLoading = useAppSelector((state) => state.boards.isContentLoading);
   const { boardId: selectedBoardId } = useParams<{ boardId: string }>();
   const navigate = useNavigate();
   const [showAddBoard, setShowAddBoard] = useState(false);
@@ -33,6 +35,18 @@ export default function BoardsPage() {
   }, [dispatch]);
 
   const selectedBoard = boards.find((b) => b.id === selectedBoardId) ?? null;
+
+  useEffect(() => {
+    if (selectedBoardId) {
+      dispatch(loadBoardContent(selectedBoardId));
+    }
+  }, [selectedBoardId, dispatch]);
+
+  useEffect(() => {
+    if (!isBoardsLoading && selectedBoardId && !selectedBoard) {
+      navigate('/', { replace: true });
+    }
+  }, [isBoardsLoading, selectedBoardId, selectedBoard, navigate]);
   const [isDndDragging, setIsDndDragging] = useState(false);
   const { ref: listsRef, onMouseDown: listsMouseDown, onMouseMove: listsMouseMove, onMouseUp: listsMouseUp, onMouseLeave: listsMouseLeave } = useDragScroll(isDndDragging);
 
@@ -127,7 +141,11 @@ export default function BoardsPage() {
               </button>
             </div>
 
-            {boards.length === 0 ? (
+            {isBoardsLoading ? (
+              <div className="sidebar-cards sidebar-loading">
+                <div className="spinner" />
+              </div>
+            ) : boards.length === 0 ? (
               <div className="sidebar-cards">
                 <button
                   className="btn-create-first"
@@ -157,7 +175,7 @@ export default function BoardsPage() {
           </aside>
 
           <main className="board-view">
-            {selectedBoard ? (
+            {selectedBoard && !isContentLoading ? (
               <>
                 <div className="board-view-header">
                   <div
@@ -206,9 +224,13 @@ export default function BoardsPage() {
                   )}
                 </Droppable>
               </>
+            ) : selectedBoardId ? (
+              <div className="board-view-loading">
+                <div className="spinner" />
+              </div>
             ) : (
               <div className="board-view-empty">
-                {boards.length === 0 ? (
+                {!isBoardsLoading && boards.length === 0 ? (
                   <>
                     <p>No boards yet.</p>
                     <button
@@ -218,9 +240,9 @@ export default function BoardsPage() {
                       Create your first board
                     </button>
                   </>
-                ) : (
+                ) : !isBoardsLoading ? (
                   <p>Select a board</p>
-                )}
+                ) : null}
               </div>
             )}
           </main>

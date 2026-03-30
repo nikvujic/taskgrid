@@ -8,11 +8,13 @@ import { apiService } from '../services/apiService';
 interface BoardsState {
   boards: Board[];
   isLoading: boolean;
+  isContentLoading: boolean;
 }
 
 const initialState: BoardsState = {
   boards: [],
-  isLoading: false,
+  isLoading: true,
+  isContentLoading: false,
 };
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -157,6 +159,17 @@ export const importData = createAsyncThunk(
   },
 );
 
+export const loadBoardContent = createAsyncThunk(
+  'boards/loadContent',
+  async (_boardId: string, { getState }) => {
+    const { auth } = getState() as RootState;
+    if (auth.mode === 'authenticated') {
+      // TODO: await apiService.fetchBoardContent(boardId)
+    }
+    // Guest mode: content already loaded with boards
+  },
+);
+
 // ── Slice ─────────────────────────────────────────────────────────────────────
 
 const boardsSlice = createSlice({
@@ -251,6 +264,15 @@ const boardsSlice = createSlice({
         destList.cards.splice(action.payload.destinationIndex, 0, movedCard);
       }
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(loadBoards.pending, (state) => { state.isLoading = true; })
+      .addCase(loadBoards.fulfilled, (state) => { state.isLoading = false; })
+      .addCase(loadBoards.rejected, (state) => { state.isLoading = false; })
+      .addCase(loadBoardContent.pending, (state) => { state.isContentLoading = true; })
+      .addCase(loadBoardContent.fulfilled, (state) => { state.isContentLoading = false; })
+      .addCase(loadBoardContent.rejected, (state) => { state.isContentLoading = false; });
   },
 });
 
