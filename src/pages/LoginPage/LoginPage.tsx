@@ -13,10 +13,11 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isExiting, setIsExiting] = useState(false);
 
   useEffect(() => {
-    if (mode !== null) navigate('/', { replace: true });
-  }, [mode, navigate]);
+    if (mode !== null && !isExiting) navigate('/', { replace: true });
+  }, [mode, navigate, isExiting]);
 
   function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -26,13 +27,19 @@ export default function LoginPage() {
     setTimeout(() => setIsSubmitting(false), 1500);
   }
 
-  async function handleGuest() {
-    await dispatch(loginAsGuest()).unwrap();
-    navigate('/');
+  function handleGuest() {
+    setIsExiting(true);
+    dispatch(loginAsGuest());
+  }
+
+  function handleExitEnd(e: React.AnimationEvent) {
+    if (e.animationName === 'panelSwipe') {
+      setTimeout(() => navigate('/'), 500);
+    }
   }
 
   return (
-    <div className="login-page">
+    <div className={`login-page${isExiting ? ' login-page--exiting' : ''}`}>
       <div className="login-brand">
         <div className="login-brand-content">
           <span className="login-brand-logo">simple kanban</span>
@@ -51,6 +58,8 @@ export default function LoginPage() {
           <div className="decor-card decor-card--3" />
         </div>
       </div>
+
+      {isExiting && <div className="exit-panel" onAnimationEnd={handleExitEnd} />}
 
       <div className="login-panel">
         <div className="login-panel-inner">

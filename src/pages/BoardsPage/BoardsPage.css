@@ -287,3 +287,74 @@
     opacity: 0.88;
   }
 }
+
+/* ── Entrance animations ──────────────────────── */
+
+@keyframes wsEnterFade {
+  from { opacity: 0; }
+}
+
+@keyframes wsEnterLeft {
+  from { opacity: 0; transform: translateX(-14px); }
+}
+
+@keyframes wsEnterRight {
+  from { opacity: 0; transform: translateX(14px); }
+}
+
+@keyframes wsEnterDown {
+  from { opacity: 0; transform: translateY(-8px); }
+}
+
+@keyframes wsBorderH {
+  from { border-bottom-color: transparent; }
+  to { border-bottom-color: var(--border); }
+}
+
+@keyframes wsBorderV {
+  from { border-left-color: transparent; }
+  to { border-left-color: var(--border); }
+}
+
+/* Header */
+.workspace-header {
+  animation: wsBorderH 0.5s ease-out 0.15s backwards;
+}
+
+.workspace-logo {
+  animation: wsEnterLeft 0.4s ease-out backwards;
+}
+
+.workspace-header-right {
+  animation: wsEnterRight 0.4s ease-out 0.06s backwards;
+}
+
+/* Sidebar */
+.boards-sidebar {
+  animation: wsEnterFade 0.3s ease-out 0.08s backwards;
+}
+
+.sidebar-top {
+  animation: wsEnterDown 0.35s ease-out 0.12s backwards;
+}
+
+.sidebar-cards {
+  animation: wsEnterDown 0.35s ease-out 0.18s backwards;
+}
+
+/* Board view */
+.board-view {
+  animation: wsBorderV 0.5s ease-out 0.15s backwards;
+}
+
+.board-view-header {
+  animation: wsBorderH 0.5s ease-out 0.2s backwards;
+}
+
+.board-view-empty {
+  animation: wsEnterFade 0.4s ease-out 0.2s backwards;
+}
+
+.board-view-loading {
+  animation: wsEnterFade 0.4s ease-out 0.15s backwards;
+}

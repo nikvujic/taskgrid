@@ -121,6 +121,59 @@
   align-items: center;
   justify-content: center;
   padding: 48px;
+  position: relative;
+}
+
+/* ── Exit animation ───────────────────────────── */
+
+.login-page--exiting .login-panel {
+  background: transparent;
+  z-index: 10;
+}
+
+.login-page--exiting .login-panel-inner {
+  animation: contentFadeOut 0.4s ease-out forwards;
+}
+
+.exit-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 480px;
+  background: var(--bg);
+  z-index: 8;
+  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.15);
+  animation: panelSwipe 0.7s cubic-bezier(0.4, 0, 0, 1) forwards;
+}
+
+.exit-panel::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 100%;
+  width: 100vw;
+  background: var(--bg);
+}
+
+@keyframes contentFadeOut {
+  to { opacity: 0; }
+}
+
+@keyframes panelSwipe {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-100vw + 480px));
+  }
+}
+
+@keyframes exitSlide {
+  to {
+    transform: translateX(calc(-100vw + 480px));
+  }
 }
 
 .login-panel-inner {
