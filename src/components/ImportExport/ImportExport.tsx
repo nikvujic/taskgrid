@@ -1,11 +1,13 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
 import { exportData, importData } from '../../store/boardsSlice';
+import ConfirmModal from '../ConfirmModal/ConfirmModal';
 import './ImportExport.css';
 
 export default function ImportExport() {
   const dispatch = useAppDispatch();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [pendingJson, setPendingJson] = useState<string | null>(null);
 
   function handleExport() {
     dispatch(exportData());
@@ -21,20 +23,16 @@ export default function ImportExport() {
 
     const reader = new FileReader();
     reader.onload = (ev) => {
-      const json = ev.target?.result as string;
-      const confirmed = window.confirm(
-        'This will replace ALL your current boards with the imported data. Continue?',
-      );
-      if (!confirmed) return;
-      try {
-        dispatch(importData(json));
-      } catch {
-        alert('Import failed: invalid JSON format.');
-      }
+      setPendingJson(ev.target?.result as string);
     };
     reader.readAsText(file);
-    // reset so the same file can be re-imported if needed
     e.target.value = '';
+  }
+
+  function handleConfirmImport() {
+    if (!pendingJson) return;
+    dispatch(importData(pendingJson));
+    setPendingJson(null);
   }
 
   return (
@@ -52,6 +50,16 @@ export default function ImportExport() {
         style={{ display: 'none' }}
         onChange={handleFileChange}
       />
+      {pendingJson && (
+        <ConfirmModal
+          title="Import data"
+          message="This will replace all your current boards with the imported data. Continue?"
+          confirmLabel="Import"
+          variant="primary"
+          onConfirm={handleConfirmImport}
+          onClose={() => setPendingJson(null)}
+        />
+      )}
     </div>
   );
 }

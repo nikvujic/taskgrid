@@ -5,11 +5,12 @@ interface Props {
   title: string;
   message: string;
   confirmLabel?: string;
+  variant?: 'danger' | 'primary';
   onConfirm: () => void;
   onClose: () => void;
 }
 
-export default function ConfirmModal({ title, message, confirmLabel = 'Delete', onConfirm, onClose }: Props) {
+export default function ConfirmModal({ title, message, confirmLabel = 'Delete', variant = 'danger', onConfirm, onClose }: Props) {
   function handleBackdropClick(e: React.MouseEvent) {
     if (e.target === e.currentTarget) onClose();
   }
@@ -26,7 +27,7 @@ export default function ConfirmModal({ title, message, confirmLabel = 'Delete', 
         </div>
         <div className="modal-footer">
           <button className="btn-ghost" onClick={onClose}>Cancel</button>
-          <button className="btn-danger" onClick={() => { onConfirm(); onClose(); }}>
+          <button className={variant === 'danger' ? 'btn-danger' : 'btn-primary'} onClick={() => { onConfirm(); onClose(); }}>
             {confirmLabel}
           </button>
         </div>
