@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
 import { addList } from '../../store/boardsSlice';
 import './AddListForm.css';
@@ -12,6 +12,7 @@ export default function AddListForm({ boardId, color }: Props) {
   const dispatch = useAppDispatch();
   const [expanded, setExpanded] = useState(false);
   const [name, setName] = useState('');
+  const wrapRef = useRef<HTMLDivElement>(null);
 
   function handleSubmit(e: { preventDefault(): void }) {
     e.preventDefault();
@@ -26,6 +27,17 @@ export default function AddListForm({ boardId, color }: Props) {
     setExpanded(false);
   }
 
+  useEffect(() => {
+    if (!expanded) return;
+    function onMouseDown(e: MouseEvent) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+        handleCancel();
+      }
+    }
+    document.addEventListener('mousedown', onMouseDown);
+    return () => document.removeEventListener('mousedown', onMouseDown);
+  });
+
   if (!expanded) {
     return (
       <div className="add-list-trigger-wrap" style={{ '--board-color': color } as React.CSSProperties}>
@@ -37,7 +49,7 @@ export default function AddListForm({ boardId, color }: Props) {
   }
 
   return (
-    <div className="add-list-wrap">
+    <div className="add-list-wrap" ref={wrapRef}>
       <form className="add-list-form" onSubmit={handleSubmit}>
         <input
           className="add-list-input"

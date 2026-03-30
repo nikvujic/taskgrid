@@ -109,6 +109,16 @@
   color: var(--text-h);
 }
 
+.list-edit-btn--danger:hover {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+[data-theme='dark'] .list-edit-btn--danger:hover {
+  background: rgba(220, 38, 38, 0.1);
+  color: #f87171;
+}
+
 .list-name-input {
   flex: 1;
   font-size: 13px;
@@ -121,6 +131,7 @@
   font-family: inherit;
   width: 0;
   min-width: 0;
+  margin-bottom: 1.5px;
 
   &:focus {
     outline: none;

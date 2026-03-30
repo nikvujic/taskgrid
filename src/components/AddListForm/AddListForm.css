@@ -27,14 +27,13 @@
 }
 
 .add-list-form {
-  background: var(--surface);
-  border: 1px solid var(--accent-border);
+  background: var(--bg);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 10px;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  box-shadow: 0 0 0 3px var(--accent-bg);
 }
 
 .add-list-input {

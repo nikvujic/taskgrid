@@ -1,12 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
-import { Pencil } from 'lucide-react';
+import { Pencil, Trash2 } from 'lucide-react';
 import { Draggable } from '@hello-pangea/dnd';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
-import { updateList, moveCard } from '../../store/boardsSlice';
+import { updateList, deleteList, moveCard } from '../../store/boardsSlice';
 import type { Board, List, Card } from '../../types';
 import CardItem from '../CardItem/CardItem';
 import AddCardForm from '../AddCardForm/AddCardForm';
 import EditCardModal from '../EditCardModal/EditCardModal';
+import ConfirmModal from '../ConfirmModal/ConfirmModal';
 import './ListColumn.css';
 
 interface Props {
@@ -29,9 +30,11 @@ export default function ListColumn({ board, list, index }: Props) {
   const [editing, setEditing] = useState(false);
   const [nameValue, setNameValue] = useState(list.name);
   const [editingCard, setEditingCard] = useState<Card | null>(null);
+  const [confirmDeleteList, setConfirmDeleteList] = useState(false);
   const [dropIndex, setDropIndex] = useState<number | null>(null);
   const dropIndexRef = useRef<number | null>(null);
   const listCardsRef = useRef<HTMLDivElement | null>(null);
+  const columnRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -82,6 +85,17 @@ export default function ListColumn({ board, list, index }: Props) {
       cancelAnimationFrame(rafId);
     };
   }, []);
+
+  useEffect(() => {
+    if (!editing) return;
+    function onMouseDown(e: MouseEvent) {
+      if (columnRef.current && !columnRef.current.contains(e.target as Node)) {
+        commitEdit();
+      }
+    }
+    document.addEventListener('mousedown', onMouseDown);
+    return () => document.removeEventListener('mousedown', onMouseDown);
+  });
 
   function startEditing() {
     setNameValue(list.name);
@@ -177,13 +191,13 @@ export default function ListColumn({ board, list, index }: Props) {
       {(provided, snapshot) => (
         <div
           className={`list-column${snapshot.isDragging ? ' is-dragging' : ''}${dropIndex !== null ? ' drag-over' : ''}`}
-          ref={provided.innerRef}
+          ref={(node: HTMLDivElement | null) => { provided.innerRef(node); columnRef.current = node; }}
           {...provided.draggableProps}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
         >
-          <div className="list-header" {...provided.dragHandleProps}>
+          <div className="list-header" {...(editing ? {} : provided.dragHandleProps)}>
             {editing ? (
               <input
                 ref={inputRef}
@@ -208,9 +222,26 @@ export default function ListColumn({ board, list, index }: Props) {
           </div>
           <div className="list-footer">
             <AddCardForm boardId={board.id} listId={list.id} />
-            <button className="list-edit-btn" onClick={startEditing} title="Rename list">
-              <Pencil size={12} strokeWidth={1.8} />
-            </button>
+            {editing ? (
+              <button
+                className="list-edit-btn list-edit-btn--danger"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => {
+                  if (list.cards.length > 0) {
+                    setConfirmDeleteList(true);
+                  } else {
+                    dispatch(deleteList({ boardId: board.id, listId: list.id }));
+                  }
+                }}
+                title="Delete list"
+              >
+                <Trash2 size={12} strokeWidth={1.8} />
+              </button>
+            ) : (
+              <button className="list-edit-btn" onClick={startEditing} title="Rename list">
+                <Pencil size={12} strokeWidth={1.8} />
+              </button>
+            )}
           </div>
           {editingCard && (
             <EditCardModal
@@ -218,6 +249,15 @@ export default function ListColumn({ board, list, index }: Props) {
               listId={list.id}
               card={editingCard}
               onClose={() => setEditingCard(null)}
+            />
+          )}
+          {confirmDeleteList && (
+            <ConfirmModal
+              title="Delete list"
+              message={`"${list.name}" and its ${list.cards.length} ${list.cards.length === 1 ? 'card' : 'cards'} will be permanently deleted.`}
+              confirmLabel="Delete"
+              onConfirm={() => dispatch(deleteList({ boardId: board.id, listId: list.id }))}
+              onClose={() => setConfirmDeleteList(false)}
             />
           )}
         </div>
