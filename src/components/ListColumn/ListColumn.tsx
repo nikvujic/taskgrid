@@ -106,7 +106,9 @@ export default function ListColumn({ board, list, index }: Props) {
     if (!e.dataTransfer.types.includes('application/taskgrid-card')) return;
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
-    const idx = getDropIndex(e.currentTarget, e.clientY);
+    const container = listCardsRef.current;
+    if (!container) return;
+    const idx = getDropIndex(container, e.clientY);
     if (idx !== dropIndexRef.current) {
       dropIndexRef.current = idx;
       setDropIndex(idx);
@@ -174,9 +176,12 @@ export default function ListColumn({ board, list, index }: Props) {
     <Draggable draggableId={list.id} index={index}>
       {(provided, snapshot) => (
         <div
-          className={`list-column${snapshot.isDragging ? ' is-dragging' : ''}`}
+          className={`list-column${snapshot.isDragging ? ' is-dragging' : ''}${dropIndex !== null ? ' drag-over' : ''}`}
           ref={provided.innerRef}
           {...provided.draggableProps}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
         >
           <div className="list-header" {...provided.dragHandleProps}>
             {editing ? (
@@ -198,9 +203,6 @@ export default function ListColumn({ board, list, index }: Props) {
           <div
             className="list-cards"
             ref={listCardsRef}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
           >
             {cardElements}
           </div>

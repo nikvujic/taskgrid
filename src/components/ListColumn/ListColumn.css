@@ -57,6 +57,11 @@
   scrollbar-gutter: stable;
   padding: 4px 8px;
   min-height: 4px;
+  transition: min-height 0.15s ease;
+}
+
+.list-column.drag-over .list-cards:not(:has(.card-item)) {
+  min-height: 48px;
 }
 
 .card-drop-indicator {
