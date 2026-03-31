@@ -9,12 +9,16 @@ interface BoardsState {
   boards: Board[];
   isLoading: boolean;
   isContentLoading: boolean;
+  boardsError: boolean;
+  contentError: boolean;
 }
 
 const initialState: BoardsState = {
   boards: [],
   isLoading: true,
   isContentLoading: false,
+  boardsError: false,
+  contentError: false,
 };
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -267,12 +271,12 @@ const boardsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(loadBoards.pending, (state) => { state.isLoading = true; })
+      .addCase(loadBoards.pending, (state) => { state.isLoading = true; state.boardsError = false; })
       .addCase(loadBoards.fulfilled, (state) => { state.isLoading = false; })
-      .addCase(loadBoards.rejected, (state) => { state.isLoading = false; })
-      .addCase(loadBoardContent.pending, (state) => { state.isContentLoading = true; })
+      .addCase(loadBoards.rejected, (state) => { state.isLoading = false; state.boardsError = true; })
+      .addCase(loadBoardContent.pending, (state) => { state.isContentLoading = true; state.contentError = false; })
       .addCase(loadBoardContent.fulfilled, (state) => { state.isContentLoading = false; })
-      .addCase(loadBoardContent.rejected, (state) => { state.isContentLoading = false; });
+      .addCase(loadBoardContent.rejected, (state) => { state.isContentLoading = false; state.contentError = true; });
   },
 });
 

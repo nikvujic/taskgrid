@@ -12,7 +12,7 @@ import SignOutModal from '../../components/SignOutModal/SignOutModal';
 import ImportExport from '../../components/ImportExport/ImportExport';
 import ListColumn from '../../components/ListColumn/ListColumn';
 import AddListForm from '../../components/AddListForm/AddListForm';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, RefreshCw } from 'lucide-react';
 import { DragDropContext, Droppable } from '@hello-pangea/dnd';
 import type { DropResult } from '@hello-pangea/dnd';
 import { useDragScroll } from '../../hooks/useDragScroll';
@@ -23,6 +23,8 @@ export default function BoardsPage() {
   const boards = useAppSelector((state) => state.boards.boards);
   const isBoardsLoading = useAppSelector((state) => state.boards.isLoading);
   const isContentLoading = useAppSelector((state) => state.boards.isContentLoading);
+  const boardsError = useAppSelector((state) => state.boards.boardsError);
+  const contentError = useAppSelector((state) => state.boards.contentError);
   const { boardId: selectedBoardId } = useParams<{ boardId: string }>();
   const navigate = useNavigate();
   const [showAddBoard, setShowAddBoard] = useState(false);
@@ -145,6 +147,14 @@ export default function BoardsPage() {
               <div className="sidebar-cards sidebar-loading">
                 <div className="spinner" />
               </div>
+            ) : boardsError ? (
+              <div className="sidebar-cards sidebar-error">
+                <p>Failed to load boards</p>
+                <button className="btn-retry" onClick={() => dispatch(loadBoards())}>
+                  <RefreshCw size={13} strokeWidth={2} />
+                  Retry
+                </button>
+              </div>
             ) : boards.length === 0 ? (
               <div className="sidebar-cards">
                 <button
@@ -224,6 +234,14 @@ export default function BoardsPage() {
                   )}
                 </Droppable>
               </>
+            ) : selectedBoardId && contentError ? (
+              <div className="board-view-empty">
+                <p>Failed to load board content</p>
+                <button className="btn-retry" onClick={() => dispatch(loadBoardContent(selectedBoardId))}>
+                  <RefreshCw size={13} strokeWidth={2} />
+                  Retry
+                </button>
+              </div>
             ) : selectedBoardId ? (
               <div className="board-view-loading">
                 <div className="spinner" />
