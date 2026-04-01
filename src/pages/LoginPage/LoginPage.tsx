@@ -19,6 +19,8 @@ export default function LoginPage() {
     if (mode !== null && !isExiting) navigate('/', { replace: true });
   }, [mode, navigate, isExiting]);
 
+  if (mode !== null && !isExiting) return null;
+
   function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     if (!email || !password) return;

@@ -26,7 +26,7 @@ export default function LandingPage() {
             Organize your work,<br />your way.
           </h1>
           <p className="landing-desc">
-            Kanban boards for teams and individuals. No clutter, no noise — just
+            Kanban boards for individuals. No clutter, no noise - just
             boards, lists, and cards.
           </p>
           <div className="landing-hero-actions">
@@ -106,7 +106,7 @@ export default function LandingPage() {
       </section>
 
       <footer className="landing-footer">
-        <span>simple kanban</span>
+        <span>Nikola Vujić</span>
       </footer>
     </div>
   );

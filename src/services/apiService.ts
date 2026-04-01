@@ -29,6 +29,6 @@ export const apiService = {
   },
 
   async saveBoards(_data: AppData): Promise<void> {
-    // TODO: replace with real API call — used for bulk updates (import)
+    // TODO: replace with real API call - used for bulk updates (import)
   },
 };
