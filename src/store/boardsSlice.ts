@@ -21,40 +21,35 @@ const initialState: BoardsState = {
   contentError: false,
 };
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-function persist(state: BoardsState, rootState: RootState) {
-  const data = { boards: state.boards };
-  if (rootState.auth.mode === 'guest') {
-    localStorageService.save(data);
-  }
-  // authenticated mode: individual mutations call apiService; bulk ops (import) call saveBoards
-}
-
 // ── Thunks ───────────────────────────────────────────────────────────────────
 
 export const loadBoards = createAsyncThunk('boards/load', async (_, { getState, dispatch }) => {
   const { auth } = getState() as RootState;
-  const data =
-    auth.mode === 'guest' ? localStorageService.load() : await apiService.fetchBoards();
-  dispatch(setBoards(data.boards));
+  if (auth.mode === 'guest') {
+    dispatch(setBoards(localStorageService.load().boards));
+  } else {
+    const boards = await apiService.fetchBoards();
+    dispatch(setBoards(boards));
+  }
 });
 
 export const addBoard = createAsyncThunk(
   'boards/addBoard',
   async (payload: Omit<Board, 'id' | 'lists' | 'createdAt'>, { getState, dispatch }) => {
-    const newBoard: Board = {
-      ...payload,
-      id: crypto.randomUUID(),
-      lists: [],
-      createdAt: new Date().toISOString(),
-    };
-    dispatch(boardAdded(newBoard));
-    const state = getState() as RootState;
-    if (state.auth.mode === 'guest') {
+    const { auth } = getState() as RootState;
+    if (auth.mode === 'guest') {
+      const newBoard: Board = {
+        ...payload,
+        id: crypto.randomUUID(),
+        lists: [],
+        createdAt: new Date().toISOString(),
+      };
+      dispatch(boardAdded(newBoard));
+      const state = getState() as RootState;
       localStorageService.save({ boards: state.boards.boards });
     } else {
-      await apiService.addBoard(newBoard);
+      const newBoard = await apiService.addBoard(payload);
+      dispatch(boardAdded(newBoard));
     }
   },
 );
@@ -91,10 +86,17 @@ export const deleteBoard = createAsyncThunk(
 export const addList = createAsyncThunk(
   'boards/addList',
   async (payload: { boardId: string; name: string }, { getState, dispatch }) => {
-    const newList: List = { id: crypto.randomUUID(), name: payload.name, cards: [] };
-    dispatch(listAdded({ boardId: payload.boardId, list: newList }));
-    const state = getState() as RootState;
-    persist(state.boards, state);
+    const { auth } = getState() as RootState;
+    if (auth.mode === 'guest') {
+      const newList: List = { id: crypto.randomUUID(), name: payload.name, cards: [] };
+      dispatch(listAdded({ boardId: payload.boardId, list: newList }));
+      const state = getState() as RootState;
+      localStorageService.save({ boards: state.boards.boards });
+    } else {
+      const created = await apiService.addList(payload.boardId, payload.name);
+      const newList: List = { id: created.id, name: created.name, cards: [] };
+      dispatch(listAdded({ boardId: payload.boardId, list: newList }));
+    }
   },
 );
 
@@ -102,22 +104,33 @@ export const deleteList = createAsyncThunk(
   'boards/deleteList',
   async (payload: { boardId: string; listId: string }, { getState, dispatch }) => {
     dispatch(listRemoved(payload));
-    const state = getState() as RootState;
-    persist(state.boards, state);
+    const { auth } = getState() as RootState;
+    if (auth.mode === 'guest') {
+      const state = getState() as RootState;
+      localStorageService.save({ boards: state.boards.boards });
+    } else {
+      await apiService.deleteList(payload.boardId, payload.listId);
+    }
   },
 );
 
 export const addCard = createAsyncThunk(
   'boards/addCard',
   async (payload: { boardId: string; listId: string; title: string }, { getState, dispatch }) => {
-    const newCard: Card = {
-      id: crypto.randomUUID(),
-      title: payload.title,
-      createdAt: new Date().toISOString(),
-    };
-    dispatch(cardAdded({ boardId: payload.boardId, listId: payload.listId, card: newCard }));
-    const state = getState() as RootState;
-    persist(state.boards, state);
+    const { auth } = getState() as RootState;
+    if (auth.mode === 'guest') {
+      const newCard: Card = {
+        id: crypto.randomUUID(),
+        title: payload.title,
+        createdAt: new Date().toISOString(),
+      };
+      dispatch(cardAdded({ boardId: payload.boardId, listId: payload.listId, card: newCard }));
+      const state = getState() as RootState;
+      localStorageService.save({ boards: state.boards.boards });
+    } else {
+      const newCard = await apiService.addCard(payload.boardId, payload.listId, payload.title);
+      dispatch(cardAdded({ boardId: payload.boardId, listId: payload.listId, card: newCard }));
+    }
   },
 );
 
@@ -128,8 +141,13 @@ export const deleteCard = createAsyncThunk(
     { getState, dispatch },
   ) => {
     dispatch(cardRemoved(payload));
-    const state = getState() as RootState;
-    persist(state.boards, state);
+    const { auth } = getState() as RootState;
+    if (auth.mode === 'guest') {
+      const state = getState() as RootState;
+      localStorageService.save({ boards: state.boards.boards });
+    } else {
+      await apiService.deleteCard(payload.boardId, payload.cardId);
+    }
   },
 );
 
@@ -157,18 +175,18 @@ export const importData = createAsyncThunk(
     const data = { boards: state.boards.boards };
     if (state.auth.mode === 'guest') {
       localStorageService.save(data);
-    } else {
-      await apiService.saveBoards(data);
     }
+    // TODO: authenticated bulk import not yet supported by the backend
   },
 );
 
 export const loadBoardContent = createAsyncThunk(
   'boards/loadContent',
-  async (_boardId: string, { getState }) => {
+  async (boardId: string, { getState, dispatch }) => {
     const { auth } = getState() as RootState;
     if (auth.mode === 'authenticated') {
-      // TODO: await apiService.fetchBoardContent(boardId)
+      const board = await apiService.fetchBoard(boardId);
+      dispatch(boardContentLoaded({ boardId, lists: board.lists }));
     }
     // Guest mode: content already loaded with boards
   },
@@ -244,6 +262,10 @@ const boardsSlice = createSlice({
       const list = board?.lists.find((l) => l.id === action.payload.listId);
       if (list) list.cards = list.cards.filter((c) => c.id !== action.payload.cardId);
     },
+    boardContentLoaded(state, action: PayloadAction<{ boardId: string; lists: List[] }>) {
+      const board = state.boards.find((b) => b.id === action.payload.boardId);
+      if (board) board.lists = action.payload.lists;
+    },
     cardMoved(
       state,
       action: PayloadAction<{
@@ -286,6 +308,7 @@ export const {
   boardUpdated,
   boardRemoved,
   boardsReordered,
+  boardContentLoaded,
   listAdded,
   listsReordered,
   listRemoved,
@@ -302,7 +325,10 @@ export const reorderBoards = createAsyncThunk(
   async (payload: { fromIndex: number; toIndex: number }, { getState, dispatch }) => {
     dispatch(boardsReordered(payload));
     const state = getState() as RootState;
-    persist(state.boards, state);
+    // TODO: backend has no reorder endpoint yet — persists locally only
+    if (state.auth.mode === 'guest') {
+      localStorageService.save({ boards: state.boards.boards });
+    }
   },
 );
 
@@ -311,7 +337,10 @@ export const reorderLists = createAsyncThunk(
   async (payload: { boardId: string; fromIndex: number; toIndex: number }, { getState, dispatch }) => {
     dispatch(listsReordered(payload));
     const state = getState() as RootState;
-    persist(state.boards, state);
+    // TODO: backend has no reorder endpoint yet — persists locally only
+    if (state.auth.mode === 'guest') {
+      localStorageService.save({ boards: state.boards.boards });
+    }
   },
 );
 
@@ -322,8 +351,13 @@ export const updateCard = createAsyncThunk(
     { getState, dispatch },
   ) => {
     dispatch(cardUpdated(payload));
-    const state = getState() as RootState;
-    persist(state.boards, state);
+    const { auth } = getState() as RootState;
+    if (auth.mode === 'guest') {
+      const state = getState() as RootState;
+      localStorageService.save({ boards: state.boards.boards });
+    } else {
+      await apiService.updateCard(payload.boardId, payload.cardId, payload.updates);
+    }
   },
 );
 
@@ -331,8 +365,13 @@ export const updateList = createAsyncThunk(
   'boards/updateList',
   async (payload: { boardId: string; listId: string; name: string }, { getState, dispatch }) => {
     dispatch(listUpdated(payload));
-    const state = getState() as RootState;
-    persist(state.boards, state);
+    const { auth } = getState() as RootState;
+    if (auth.mode === 'guest') {
+      const state = getState() as RootState;
+      localStorageService.save({ boards: state.boards.boards });
+    } else {
+      await apiService.updateList(payload.boardId, payload.listId, payload.name);
+    }
   },
 );
 
@@ -350,6 +389,9 @@ export const moveCard = createAsyncThunk(
   ) => {
     dispatch(cardMoved(payload));
     const state = getState() as RootState;
-    persist(state.boards, state);
+    // TODO: backend has no move/reorder endpoint yet — persists locally only
+    if (state.auth.mode === 'guest') {
+      localStorageService.save({ boards: state.boards.boards });
+    }
   },
 );

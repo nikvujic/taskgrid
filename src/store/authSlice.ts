@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { AuthMode, User } from '../types';
-import { apiService } from '../services/apiService';
+import { apiService, setToken, clearToken } from '../services/apiService';
 import { setBoards } from './boardsSlice';
 
 const AUTH_KEY = 'sk_auth';
@@ -24,10 +24,18 @@ export const restoreSession = createAsyncThunk('auth/restoreSession', async (_, 
     const raw = localStorage.getItem(AUTH_KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as { mode: AuthMode; user?: User };
-      dispatch(setAuth({ mode: parsed.mode, user: parsed.user ?? null }));
+      if (parsed.mode === 'authenticated') {
+        // Validate the stored token by calling /me
+        const user = await apiService.me();
+        dispatch(setAuth({ mode: 'authenticated', user }));
+      } else {
+        dispatch(setAuth({ mode: 'guest', user: null }));
+      }
     }
   } catch {
-    // ignore corrupt data
+    // Token invalid/expired or corrupt data — clear everything
+    localStorage.removeItem(AUTH_KEY);
+    clearToken();
   }
   dispatch(setLoading(false));
 });
@@ -40,7 +48,8 @@ export const loginAsGuest = createAsyncThunk('auth/loginAsGuest', async (_, { di
 export const login = createAsyncThunk(
   'auth/login',
   async ({ email, password }: { email: string; password: string }, { dispatch }) => {
-    const user = await apiService.login(email, password);
+    const { user, token } = await apiService.login(email, password);
+    setToken(token);
     localStorage.setItem(AUTH_KEY, JSON.stringify({ mode: 'authenticated', user }));
     dispatch(setAuth({ mode: 'authenticated', user }));
   },
@@ -49,6 +58,7 @@ export const login = createAsyncThunk(
 export const logout = createAsyncThunk('auth/logout', async (_, { dispatch }) => {
   localStorage.removeItem(AUTH_KEY);
   localStorage.removeItem(DATA_KEY);
+  clearToken();
   dispatch(setBoards([]));
   dispatch(clearAuth());
 });
