@@ -335,9 +335,11 @@ export const reorderBoards = createAsyncThunk(
   async (payload: { fromIndex: number; toIndex: number }, { getState, dispatch }) => {
     dispatch(boardsReordered(payload));
     const state = getState() as RootState;
-    // TODO: backend has no reorder endpoint yet — persists locally only
     if (state.auth.mode === 'guest') {
       localStorageService.save({ boards: state.boards.boards });
+    } else {
+      const boardIds = state.boards.boards.map((b) => b.id);
+      await apiService.reorderBoards(boardIds);
     }
   },
 );
@@ -347,9 +349,13 @@ export const reorderLists = createAsyncThunk(
   async (payload: { boardId: string; fromIndex: number; toIndex: number }, { getState, dispatch }) => {
     dispatch(listsReordered(payload));
     const state = getState() as RootState;
-    // TODO: backend has no reorder endpoint yet — persists locally only
     if (state.auth.mode === 'guest') {
       localStorageService.save({ boards: state.boards.boards });
+    } else {
+      const board = state.boards.boards.find((b) => b.id === payload.boardId);
+      if (!board) return;
+      const listIds = board.lists.map((l) => l.id);
+      await apiService.reorderLists(payload.boardId, listIds);
     }
   },
 );
@@ -397,11 +403,22 @@ export const moveCard = createAsyncThunk(
     },
     { getState, dispatch },
   ) => {
+    const preState = getState() as RootState;
+    const preBoard = preState.boards.boards.find((b) => b.id === payload.boardId);
+    const sourceList = preBoard?.lists.find((l) => l.id === payload.sourceListId);
+    const cardId = sourceList?.cards[payload.sourceIndex]?.id;
+
     dispatch(cardMoved(payload));
     const state = getState() as RootState;
-    // TODO: backend has no move/reorder endpoint yet — persists locally only
     if (state.auth.mode === 'guest') {
       localStorageService.save({ boards: state.boards.boards });
+    } else if (cardId) {
+      await apiService.moveCard(
+        payload.boardId,
+        cardId,
+        payload.destinationListId,
+        payload.destinationIndex,
+      );
     }
   },
 );

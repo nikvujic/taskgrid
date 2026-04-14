@@ -146,6 +146,13 @@ export const apiService = {
     await request(`/boards/${id}`, { method: 'DELETE' });
   },
 
+  async reorderBoards(boardIds: string[]): Promise<void> {
+    await request('/boards/reorder', {
+      method: 'PATCH',
+      body: JSON.stringify({ boardIds }),
+    });
+  },
+
   async importData(data: { boards: Board[] }): Promise<void> {
     const payload = {
       boards: data.boards.map((b) => ({
@@ -186,6 +193,13 @@ export const apiService = {
     await request(`/boards/${boardId}/lists/${listId}`, { method: 'DELETE' });
   },
 
+  async reorderLists(boardId: string, listIds: string[]): Promise<void> {
+    await request(`/boards/${boardId}/lists/reorder`, {
+      method: 'PATCH',
+      body: JSON.stringify({ listIds }),
+    });
+  },
+
   // Cards
   async addCard(boardId: string, listId: string, title: string): Promise<Card> {
     const data = await request<CardFromApi>(`/boards/${boardId}/lists/${listId}/cards`, {
@@ -204,5 +218,17 @@ export const apiService = {
 
   async deleteCard(boardId: string, cardId: string): Promise<void> {
     await request(`/boards/${boardId}/cards/${cardId}`, { method: 'DELETE' });
+  },
+
+  async moveCard(
+    boardId: string,
+    cardId: string,
+    destinationListId: string,
+    destinationIndex: number,
+  ): Promise<void> {
+    await request(`/boards/${boardId}/cards/${cardId}/move`, {
+      method: 'PATCH',
+      body: JSON.stringify({ destinationListId, destinationIndex }),
+    });
   },
 };
