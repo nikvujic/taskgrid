@@ -25,6 +25,7 @@ export default function BoardsPage() {
   const isContentLoading = useAppSelector((state) => state.boards.isContentLoading);
   const boardsError = useAppSelector((state) => state.boards.boardsError);
   const contentError = useAppSelector((state) => state.boards.contentError);
+  const authMode = useAppSelector((state) => state.auth.mode);
   const { boardId: selectedBoardId } = useParams<{ boardId: string }>();
   const navigate = useNavigate();
   const [showAddBoard, setShowAddBoard] = useState(false);
@@ -33,16 +34,18 @@ export default function BoardsPage() {
   const [deletingBoard, setDeletingBoard] = useState<Board | null>(null);
 
   useEffect(() => {
+    if (authMode === null) return;
     dispatch(loadBoards());
-  }, [dispatch]);
+  }, [dispatch, authMode]);
 
   const selectedBoard = boards.find((b) => b.id === selectedBoardId) ?? null;
 
   useEffect(() => {
+    if (authMode === null) return;
     if (selectedBoardId) {
       dispatch(loadBoardContent(selectedBoardId));
     }
-  }, [selectedBoardId, dispatch]);
+  }, [selectedBoardId, dispatch, authMode]);
 
   useEffect(() => {
     if (!isBoardsLoading && selectedBoardId && !selectedBoard) {
