@@ -42,16 +42,17 @@ export default function BoardsPage() {
 
   useEffect(() => {
     if (authMode === null) return;
+    if (isBoardsLoading) return;
     if (selectedBoardId) {
       dispatch(loadBoardContent(selectedBoardId));
     }
-  }, [selectedBoardId, dispatch, authMode]);
+  }, [selectedBoardId, dispatch, authMode, isBoardsLoading]);
 
   const [forceSpinner, setForceSpinner] = useState(false);
   const [spinnerKey, setSpinnerKey] = useState<string | null>(null);
-  const prevBoardIdRef = useRef<string | undefined>(undefined);
-  if (selectedBoardId !== prevBoardIdRef.current) {
-    prevBoardIdRef.current = selectedBoardId;
+  const [prevBoardId, setPrevBoardId] = useState<string | undefined>(undefined);
+  if (selectedBoardId !== prevBoardId) {
+    setPrevBoardId(selectedBoardId);
     const board = selectedBoardId ? boards.find((b) => b.id === selectedBoardId) : null;
     const needsSpinner = !!selectedBoardId && (!board || board.lists.length === 0);
     if (needsSpinner) {
