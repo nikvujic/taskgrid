@@ -104,9 +104,12 @@
   pointer-events: none;
 }
 
-.card-gap:hover .card-gap-btn,
-.card-gap--active .card-gap-btn {
+.card-gap:hover .card-gap-btn {
   opacity: 1;
+}
+
+.card-gap--active .card-gap-btn {
+  opacity: 0;
 }
 
 .card-gap::before {
@@ -122,9 +125,26 @@
   transition: opacity 0.12s ease;
 }
 
-.card-gap:hover::before,
-.card-gap--active::before {
+.card-gap:hover::before {
   opacity: 0.45;
+}
+
+.card-gap--active::before {
+  opacity: 1;
+  background: var(--accent);
+  height: 2px;
+}
+
+.list-cards > .card-gap:first-child {
+  margin-top: 0;
+}
+
+.list-cards > .card-gap:first-child .card-gap-btn {
+  display: none;
+}
+
+.list-cards > .card-gap:first-child::before {
+  top: 30%;
 }
 
 .list-footer {
