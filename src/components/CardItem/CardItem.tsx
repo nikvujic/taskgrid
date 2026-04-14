@@ -24,17 +24,26 @@ export default function CardItem({ card, index, listId, onClick }: Props) {
     (e.target as HTMLElement).classList.remove('card-item--dragging');
   }
 
+  const isSeparator = /^-{3,}$/.test(card.title.trim());
+
   return (
     <div
-      className="card-item"
+      className={`card-item${isSeparator ? ' card-item--separator' : ''}`}
       draggable
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       onClick={onClick}
+      title={isSeparator ? 'Separator — click to edit' : undefined}
     >
-      <span className="card-title">{card.title}</span>
-      {card.description && (
-        <p className="card-description">{card.description}</p>
+      {isSeparator ? (
+        <span className="card-separator-line" aria-label="separator" />
+      ) : (
+        <>
+          <span className="card-title">{card.title}</span>
+          {card.description && (
+            <p className="card-description">{card.description}</p>
+          )}
+        </>
       )}
     </div>
   );
