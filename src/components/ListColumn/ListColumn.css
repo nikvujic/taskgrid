@@ -54,10 +54,24 @@
   flex: 1;
   overflow-y: auto;
   overscroll-behavior: contain;
-  scrollbar-gutter: stable;
   padding: 0 8px;
   min-height: 4px;
   transition: min-height 0.15s ease;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.list-cards::-webkit-scrollbar {
+  width: 6px;
+}
+
+.list-cards::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+.list-cards::-webkit-scrollbar-thumb:hover {
+  background: var(--text);
 }
 
 .list-column.drag-over .list-cards:not(:has(.card-item)) {
