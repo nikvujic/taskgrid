@@ -21,6 +21,13 @@ export function setApiErrorHandler(fn: ApiErrorHandler | null): void {
   apiErrorHandler = fn;
 }
 
+type UnauthorizedHandler = () => void;
+let unauthorizedHandler: UnauthorizedHandler | null = null;
+
+export function setUnauthorizedHandler(fn: UnauthorizedHandler | null): void {
+  unauthorizedHandler = fn;
+}
+
 function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
 }
@@ -40,6 +47,7 @@ interface RequestOptions extends RequestInit {
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { silent = false, ...init } = options;
   const token = getToken();
+  const hadToken = !!token;
   const headers: Record<string, string> = {};
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
@@ -64,6 +72,9 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
       (typeof body?.error === 'string' ? body.error : null);
     const message = serverMsg || `Request failed: ${res.status}`;
     const err = new ApiError(message, res.status, silent);
+    if (err.status === 401 && hadToken && unauthorizedHandler) {
+      unauthorizedHandler();
+    }
     if (!silent && apiErrorHandler) apiErrorHandler(err);
     throw err;
   }
