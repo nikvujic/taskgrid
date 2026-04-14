@@ -118,7 +118,7 @@
   pointer-events: none;
 }
 
-.card-gap:hover .card-gap-btn {
+.card-gap:not(.card-gap--active):hover .card-gap-btn {
   opacity: 1;
 }
 
@@ -139,7 +139,7 @@
   transition: opacity 0.12s ease;
 }
 
-.card-gap:hover::before {
+.card-gap:not(.card-gap--active):hover::before {
   opacity: 0.45;
 }
 
