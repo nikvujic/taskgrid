@@ -122,7 +122,10 @@ export const deleteList = createAsyncThunk(
 
 export const addCard = createAsyncThunk(
   'boards/addCard',
-  async (payload: { boardId: string; listId: string; title: string }, { getState, dispatch }) => {
+  async (
+    payload: { boardId: string; listId: string; title: string; index?: number },
+    { getState, dispatch },
+  ) => {
     const { auth } = getState() as RootState;
     if (auth.mode === 'guest') {
       const newCard: Card = {
@@ -130,12 +133,20 @@ export const addCard = createAsyncThunk(
         title: payload.title,
         createdAt: new Date().toISOString(),
       };
-      dispatch(cardAdded({ boardId: payload.boardId, listId: payload.listId, card: newCard }));
+      dispatch(cardAdded({ boardId: payload.boardId, listId: payload.listId, card: newCard, index: payload.index }));
       const state = getState() as RootState;
       localStorageService.save({ boards: state.boards.boards });
     } else {
       const newCard = await apiService.addCard(payload.boardId, payload.listId, payload.title);
-      dispatch(cardAdded({ boardId: payload.boardId, listId: payload.listId, card: newCard }));
+      dispatch(cardAdded({ boardId: payload.boardId, listId: payload.listId, card: newCard, index: payload.index }));
+      if (payload.index !== undefined) {
+        try {
+          await apiService.moveCard(payload.boardId, newCard.id, payload.listId, payload.index);
+        } catch (e) {
+          dispatch(loadBoardContent(payload.boardId));
+          throw e;
+        }
+      }
     }
   },
 );
@@ -250,10 +261,19 @@ const boardsSlice = createSlice({
       const list = board?.lists.find((l) => l.id === action.payload.listId);
       if (list) list.name = action.payload.name;
     },
-    cardAdded(state, action: PayloadAction<{ boardId: string; listId: string; card: Card }>) {
+    cardAdded(
+      state,
+      action: PayloadAction<{ boardId: string; listId: string; card: Card; index?: number }>,
+    ) {
       const board = state.boards.find((b) => b.id === action.payload.boardId);
       const list = board?.lists.find((l) => l.id === action.payload.listId);
-      list?.cards.push(action.payload.card);
+      if (!list) return;
+      if (action.payload.index !== undefined) {
+        const clamped = Math.min(Math.max(0, action.payload.index), list.cards.length);
+        list.cards.splice(clamped, 0, action.payload.card);
+      } else {
+        list.cards.push(action.payload.card);
+      }
     },
     cardUpdated(
       state,

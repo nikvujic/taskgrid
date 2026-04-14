@@ -6,17 +6,32 @@ import './AddCardForm.css';
 interface Props {
   boardId: string;
   listId: string;
+  insertionIndex?: number | null;
+  expanded?: boolean;
+  onExpandedChange?: (expanded: boolean) => void;
 }
 
-export default function AddCardForm({ boardId, listId }: Props) {
+export default function AddCardForm({ boardId, listId, insertionIndex, expanded: controlledExpanded, onExpandedChange }: Props) {
   const dispatch = useAppDispatch();
-  const [expanded, setExpanded] = useState(false);
+  const [internalExpanded, setInternalExpanded] = useState(false);
   const [title, setTitle] = useState('');
   const formRef = useRef<HTMLFormElement>(null);
 
+  const isControlled = controlledExpanded !== undefined;
+  const expanded = isControlled ? controlledExpanded : internalExpanded;
+  const setExpanded = (v: boolean) => {
+    if (isControlled) onExpandedChange?.(v);
+    else setInternalExpanded(v);
+  };
+
   function submit() {
     if (!title.trim()) return;
-    dispatch(addCard({ boardId, listId, title: title.trim() }));
+    dispatch(addCard({
+      boardId,
+      listId,
+      title: title.trim(),
+      ...(insertionIndex != null ? { index: insertionIndex } : {}),
+    }));
     setTitle('');
     setExpanded(false);
   }

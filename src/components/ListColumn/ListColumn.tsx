@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { Draggable } from '@hello-pangea/dnd';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
 import { updateList, deleteList, moveCard } from '../../store/boardsSlice';
@@ -32,10 +32,22 @@ export default function ListColumn({ board, list, index }: Props) {
   const [editingCard, setEditingCard] = useState<Card | null>(null);
   const [confirmDeleteList, setConfirmDeleteList] = useState(false);
   const [dropIndex, setDropIndex] = useState<number | null>(null);
+  const [insertionIndex, setInsertionIndex] = useState<number | null>(null);
+  const [addCardExpanded, setAddCardExpanded] = useState(false);
   const dropIndexRef = useRef<number | null>(null);
   const listCardsRef = useRef<HTMLDivElement | null>(null);
   const columnRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  function openAddCardAt(index: number) {
+    setInsertionIndex(index);
+    setAddCardExpanded(true);
+  }
+
+  function handleAddExpandedChange(next: boolean) {
+    setAddCardExpanded(next);
+    if (!next) setInsertionIndex(null);
+  }
 
   useEffect(() => {
     const el = listCardsRef.current;
@@ -167,11 +179,28 @@ export default function ListColumn({ board, list, index }: Props) {
     );
   }
 
+  function renderGap(gapIndex: number) {
+    return (
+      <button
+        key={`gap-${gapIndex}`}
+        type="button"
+        className={`card-gap${insertionIndex === gapIndex && addCardExpanded ? ' card-gap--active' : ''}`}
+        onClick={() => openAddCardAt(gapIndex)}
+        aria-label="Insert card here"
+      >
+        <span className="card-gap-btn">
+          <Plus size={12} strokeWidth={2.5} />
+        </span>
+      </button>
+    );
+  }
+
   const cardElements: React.ReactNode[] = [];
   list.cards.forEach((card, cardIndex) => {
     if (dropIndex === cardIndex) {
       cardElements.push(<div key="drop-indicator" className="card-drop-indicator" />);
     }
+    cardElements.push(renderGap(cardIndex));
     cardElements.push(
       <CardItem
         key={card.id}
@@ -221,7 +250,13 @@ export default function ListColumn({ board, list, index }: Props) {
             {cardElements}
           </div>
           <div className="list-footer">
-            <AddCardForm boardId={board.id} listId={list.id} />
+            <AddCardForm
+              boardId={board.id}
+              listId={list.id}
+              insertionIndex={insertionIndex}
+              expanded={addCardExpanded}
+              onExpandedChange={handleAddExpandedChange}
+            />
             {editing ? (
               <button
                 className="list-edit-btn list-edit-btn--danger"

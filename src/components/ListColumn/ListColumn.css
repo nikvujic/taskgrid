@@ -71,6 +71,62 @@
   margin-bottom: 5px;
 }
 
+.card-gap {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 10px;
+  margin: -5px 0;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.card-gap-btn {
+  position: absolute;
+  top: 25%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  background: var(--text-h);
+  color: var(--bg);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+  box-shadow: var(--shadow);
+  pointer-events: none;
+}
+
+.card-gap:hover .card-gap-btn,
+.card-gap--active .card-gap-btn {
+  opacity: 1;
+}
+
+.card-gap::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  top: 25%;
+  height: 1px;
+  background: var(--text);
+  opacity: 0;
+  transform: translateY(-50%);
+  transition: opacity 0.12s ease;
+}
+
+.card-gap:hover::before,
+.card-gap--active::before {
+  opacity: 0.45;
+}
+
 .list-footer {
   display: flex;
   align-items: center;
