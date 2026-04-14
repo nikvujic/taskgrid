@@ -339,7 +339,12 @@ export const reorderBoards = createAsyncThunk(
       localStorageService.save({ boards: state.boards.boards });
     } else {
       const boardIds = state.boards.boards.map((b) => b.id);
-      await apiService.reorderBoards(boardIds);
+      try {
+        await apiService.reorderBoards(boardIds);
+      } catch (e) {
+        dispatch(loadBoards());
+        throw e;
+      }
     }
   },
 );
@@ -355,7 +360,12 @@ export const reorderLists = createAsyncThunk(
       const board = state.boards.boards.find((b) => b.id === payload.boardId);
       if (!board) return;
       const listIds = board.lists.map((l) => l.id);
-      await apiService.reorderLists(payload.boardId, listIds);
+      try {
+        await apiService.reorderLists(payload.boardId, listIds);
+      } catch (e) {
+        dispatch(loadBoardContent(payload.boardId));
+        throw e;
+      }
     }
   },
 );
@@ -413,12 +423,17 @@ export const moveCard = createAsyncThunk(
     if (state.auth.mode === 'guest') {
       localStorageService.save({ boards: state.boards.boards });
     } else if (cardId) {
-      await apiService.moveCard(
-        payload.boardId,
-        cardId,
-        payload.destinationListId,
-        payload.destinationIndex,
-      );
+      try {
+        await apiService.moveCard(
+          payload.boardId,
+          cardId,
+          payload.destinationListId,
+          payload.destinationIndex,
+        );
+      } catch (e) {
+        dispatch(loadBoardContent(payload.boardId));
+        throw e;
+      }
     }
   },
 );

@@ -7,6 +7,7 @@ import ProtectedRoute from './router/ProtectedRoute';
 import LandingPage from './pages/LandingPage/LandingPage';
 import LoginPage from './pages/LoginPage/LoginPage';
 import BoardsPage from './pages/BoardsPage/BoardsPage';
+import ToastHost from './components/ToastHost/ToastHost';
 
 function AppInitializer() {
   useEffect(() => {
@@ -35,6 +36,7 @@ export default function App() {
   return (
     <Provider store={store}>
       <AppRoutes />
+      <ToastHost />
     </Provider>
   );
 }

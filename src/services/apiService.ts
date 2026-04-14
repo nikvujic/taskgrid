@@ -3,6 +3,24 @@ import type { Board, Card, List, User } from '../types';
 const API_BASE = 'http://localhost:4000/api';
 const TOKEN_KEY = 'sk_token';
 
+export class ApiError extends Error {
+  status: number;
+  silent: boolean;
+  constructor(message: string, status: number, silent: boolean) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.silent = silent;
+  }
+}
+
+type ApiErrorHandler = (err: ApiError) => void;
+let apiErrorHandler: ApiErrorHandler | null = null;
+
+export function setApiErrorHandler(fn: ApiErrorHandler | null): void {
+  apiErrorHandler = fn;
+}
+
 function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
 }
@@ -15,24 +33,39 @@ export function clearToken(): void {
   localStorage.removeItem(TOKEN_KEY);
 }
 
-async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+interface RequestOptions extends RequestInit {
+  silent?: boolean;
+}
+
+async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  const { silent = false, ...init } = options;
   const token = getToken();
   const headers: Record<string, string> = {};
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
-  if (options.body) {
+  if (init.body) {
     headers['Content-Type'] = 'application/json';
   }
 
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers,
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}${path}`, { ...init, headers });
+  } catch {
+    const err = new ApiError('Network error. Please check your connection.', 0, silent);
+    if (!silent && apiErrorHandler) apiErrorHandler(err);
+    throw err;
+  }
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(body.error || `Request failed: ${res.status}`);
+    const serverMsg =
+      (body && body.error && typeof body.error === 'object' && body.error.message) ||
+      (typeof body?.error === 'string' ? body.error : null);
+    const message = serverMsg || `Request failed: ${res.status}`;
+    const err = new ApiError(message, res.status, silent);
+    if (!silent && apiErrorHandler) apiErrorHandler(err);
+    throw err;
   }
 
   if (res.status === 204) return undefined as T;
@@ -108,22 +141,23 @@ export const apiService = {
     return request('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
+      silent: true,
     });
   },
 
   async me(): Promise<User> {
-    const data = await request<{ user: User }>('/me');
+    const data = await request<{ user: User }>('/me', { silent: true });
     return data.user;
   },
 
   // Boards
   async fetchBoards(): Promise<Board[]> {
-    const data = await request<{ boards: BoardFromApi[] }>('/boards');
+    const data = await request<{ boards: BoardFromApi[] }>('/boards', { silent: true });
     return data.boards.map(mapBoard);
   },
 
   async fetchBoard(id: string): Promise<Board> {
-    const data = await request<BoardFromApi>(`/boards/${id}`);
+    const data = await request<BoardFromApi>(`/boards/${id}`, { silent: true });
     return mapBoardWithContent(data);
   },
 
@@ -171,6 +205,7 @@ export const apiService = {
     await request('/boards/import', {
       method: 'POST',
       body: JSON.stringify(payload),
+      silent: true,
     });
   },
 
