@@ -30,7 +30,10 @@ export default function BoardCard({ board, index, onSelect, isSelected }: Props)
               <span className="board-card-desc">{board.description}</span>
             )}
             <span className="board-card-meta">
-              {board.lists.length} {board.lists.length === 1 ? 'list' : 'lists'}
+              {(() => {
+                const count = board.lists.length > 0 ? board.lists.length : (board.listCount ?? 0);
+                return `${count} ${count === 1 ? 'list' : 'lists'}`;
+              })()}
             </span>
           </div>
         </div>

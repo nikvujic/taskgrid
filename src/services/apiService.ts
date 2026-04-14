@@ -48,6 +48,7 @@ interface BoardFromApi {
   color: string;
   createdAt: string;
   lists?: ListFromApi[];
+  _count?: { lists: number };
 }
 
 interface ListFromApi {
@@ -79,6 +80,7 @@ function mapBoard(b: BoardFromApi): Board {
     description: b.description ?? '',
     color: b.color,
     lists: [],
+    listCount: b._count?.lists ?? 0,
     createdAt: b.createdAt,
   };
 }

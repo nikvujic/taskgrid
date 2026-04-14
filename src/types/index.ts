@@ -17,6 +17,7 @@ export interface Board {
   description: string;
   color: string;
   lists: List[];
+  listCount?: number;
   createdAt: string;
 }
 
