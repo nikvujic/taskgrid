@@ -47,6 +47,27 @@ export default function BoardsPage() {
     }
   }, [selectedBoardId, dispatch, authMode]);
 
+  const [forceSpinner, setForceSpinner] = useState(false);
+  const [spinnerKey, setSpinnerKey] = useState<string | null>(null);
+  const prevBoardIdRef = useRef<string | undefined>(undefined);
+  if (selectedBoardId !== prevBoardIdRef.current) {
+    prevBoardIdRef.current = selectedBoardId;
+    const board = selectedBoardId ? boards.find((b) => b.id === selectedBoardId) : null;
+    const needsSpinner = !!selectedBoardId && (!board || board.lists.length === 0);
+    if (needsSpinner) {
+      setForceSpinner(true);
+      setSpinnerKey(selectedBoardId ?? null);
+    } else if (forceSpinner) {
+      setForceSpinner(false);
+      setSpinnerKey(null);
+    }
+  }
+  useEffect(() => {
+    if (!forceSpinner) return;
+    const t = setTimeout(() => setForceSpinner(false), 400);
+    return () => clearTimeout(t);
+  }, [spinnerKey, forceSpinner]);
+
   useEffect(() => {
     if (!isBoardsLoading && selectedBoardId && !selectedBoard) {
       navigate('/', { replace: true });
@@ -188,7 +209,7 @@ export default function BoardsPage() {
           </aside>
 
           <main className="board-view">
-            {selectedBoard && !isContentLoading ? (
+            {selectedBoard ? (
               <>
                 <div className="board-view-header">
                   <div
@@ -213,29 +234,43 @@ export default function BoardsPage() {
                     </button>
                   </div>
                 </div>
-                <Droppable droppableId="lists" type="LIST" direction="horizontal">
-                  {(provided) => (
-                    <div
-                      className={`board-lists${isDndDragging ? ' is-dnd-dragging' : ''}`}
-                      ref={(node: HTMLDivElement | null) => {
-                        provided.innerRef(node);
-                        listsRef(node);
-                        boardListsRef.current = node;
-                      }}
-                      {...provided.droppableProps}
-                      onMouseDown={listsMouseDown}
-                      onMouseMove={listsMouseMove}
-                      onMouseUp={listsMouseUp}
-                      onMouseLeave={listsMouseLeave}
-                    >
-                      {selectedBoard.lists.map((list, index) => (
-                        <ListColumn key={list.id} board={selectedBoard} list={list} index={index} />
-                      ))}
-                      {provided.placeholder}
-                      <AddListForm boardId={selectedBoard.id} color={selectedBoard.color} />
-                    </div>
-                  )}
-                </Droppable>
+                {!forceSpinner && (selectedBoard.lists.length > 0 || !isContentLoading) ? (
+                  <Droppable droppableId="lists" type="LIST" direction="horizontal">
+                    {(provided) => (
+                      <div
+                        className={`board-lists${isDndDragging ? ' is-dnd-dragging' : ''}`}
+                        ref={(node: HTMLDivElement | null) => {
+                          provided.innerRef(node);
+                          listsRef(node);
+                          boardListsRef.current = node;
+                        }}
+                        {...provided.droppableProps}
+                        onMouseDown={listsMouseDown}
+                        onMouseMove={listsMouseMove}
+                        onMouseUp={listsMouseUp}
+                        onMouseLeave={listsMouseLeave}
+                      >
+                        {selectedBoard.lists.map((list, index) => (
+                          <ListColumn key={list.id} board={selectedBoard} list={list} index={index} />
+                        ))}
+                        {provided.placeholder}
+                        <AddListForm boardId={selectedBoard.id} color={selectedBoard.color} />
+                      </div>
+                    )}
+                  </Droppable>
+                ) : contentError ? (
+                  <div className="board-view-empty">
+                    <p>Failed to load board content</p>
+                    <button className="btn-retry" onClick={() => dispatch(loadBoardContent(selectedBoard.id))}>
+                      <RefreshCw size={13} strokeWidth={2} />
+                      Retry
+                    </button>
+                  </div>
+                ) : (
+                  <div className="board-view-loading">
+                    <div className="spinner" />
+                  </div>
+                )}
               </>
             ) : selectedBoardId && contentError ? (
               <div className="board-view-empty">
