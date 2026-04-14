@@ -48,27 +48,6 @@ export default function BoardsPage() {
     }
   }, [selectedBoardId, dispatch, authMode, isBoardsLoading]);
 
-  const [forceSpinner, setForceSpinner] = useState(false);
-  const [spinnerKey, setSpinnerKey] = useState<string | null>(null);
-  const [prevBoardId, setPrevBoardId] = useState<string | undefined>(undefined);
-  if (selectedBoardId !== prevBoardId) {
-    setPrevBoardId(selectedBoardId);
-    const board = selectedBoardId ? boards.find((b) => b.id === selectedBoardId) : null;
-    const needsSpinner = !!selectedBoardId && (!board || board.lists.length === 0);
-    if (needsSpinner) {
-      setForceSpinner(true);
-      setSpinnerKey(selectedBoardId ?? null);
-    } else if (forceSpinner) {
-      setForceSpinner(false);
-      setSpinnerKey(null);
-    }
-  }
-  useEffect(() => {
-    if (!forceSpinner) return;
-    const t = setTimeout(() => setForceSpinner(false), 400);
-    return () => clearTimeout(t);
-  }, [spinnerKey, forceSpinner]);
-
   const [hasFadedLists, setHasFadedLists] = useState(false);
 
   useEffect(() => {
@@ -237,7 +216,7 @@ export default function BoardsPage() {
                     </button>
                   </div>
                 </div>
-                {!forceSpinner && (selectedBoard.lists.length > 0 || !isContentLoading) ? (
+                {selectedBoard.lists.length > 0 || !isContentLoading ? (
                   <Droppable droppableId="lists" type="LIST" direction="horizontal">
                     {(provided) => (
                       <div
