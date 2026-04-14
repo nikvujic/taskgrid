@@ -28,8 +28,14 @@ export const loadBoards = createAsyncThunk('boards/load', async (_, { getState, 
   if (auth.mode === 'guest') {
     dispatch(setBoards(localStorageService.load().boards));
   } else {
-    const boards = await apiService.fetchBoards();
-    dispatch(setBoards(boards));
+    const fetched = await apiService.fetchBoards();
+    const existing = (getState() as RootState).boards.boards;
+    const existingById = new Map(existing.map((b) => [b.id, b]));
+    const merged = fetched.map((b) => {
+      const prev = existingById.get(b.id);
+      return prev && prev.lists.length > 0 ? { ...b, lists: prev.lists } : b;
+    });
+    dispatch(setBoards(merged));
   }
 });
 
