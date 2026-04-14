@@ -220,6 +220,15 @@
   user-select: none;
 }
 
+.board-lists--fade {
+  animation: boardListsFadeIn 0.2s ease-out both;
+}
+
+@keyframes boardListsFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 
 .board-lists.is-dnd-dragging * {
   pointer-events: none;

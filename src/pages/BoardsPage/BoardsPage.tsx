@@ -69,6 +69,8 @@ export default function BoardsPage() {
     return () => clearTimeout(t);
   }, [spinnerKey, forceSpinner]);
 
+  const [hasFadedLists, setHasFadedLists] = useState(false);
+
   useEffect(() => {
     if (!isBoardsLoading && selectedBoardId && !selectedBoard) {
       navigate('/', { replace: true });
@@ -239,13 +241,18 @@ export default function BoardsPage() {
                   <Droppable droppableId="lists" type="LIST" direction="horizontal">
                     {(provided) => (
                       <div
-                        className={`board-lists${isDndDragging ? ' is-dnd-dragging' : ''}`}
+                        className={`board-lists${isDndDragging ? ' is-dnd-dragging' : ''}${hasFadedLists ? '' : ' board-lists--fade'}`}
                         ref={(node: HTMLDivElement | null) => {
                           provided.innerRef(node);
                           listsRef(node);
                           boardListsRef.current = node;
                         }}
                         {...provided.droppableProps}
+                        onAnimationEnd={(e) => {
+                          if (e.target === e.currentTarget && e.animationName === 'boardListsFadeIn') {
+                            setHasFadedLists(true);
+                          }
+                        }}
                         onMouseDown={listsMouseDown}
                         onMouseMove={listsMouseMove}
                         onMouseUp={listsMouseUp}
