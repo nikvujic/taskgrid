@@ -170,13 +170,17 @@ export const importData = createAsyncThunk(
     if (!parsed || !Array.isArray(parsed.boards)) {
       throw new Error('Invalid import format: expected { boards: [...] }');
     }
-    dispatch(setBoards(parsed.boards as Board[]));
-    const state = getState() as RootState;
-    const data = { boards: state.boards.boards };
-    if (state.auth.mode === 'guest') {
-      localStorageService.save(data);
+    const boards = parsed.boards as Board[];
+    const { auth } = getState() as RootState;
+    if (auth.mode === 'guest') {
+      dispatch(setBoards(boards));
+      const state = getState() as RootState;
+      localStorageService.save({ boards: state.boards.boards });
+    } else {
+      await apiService.importData({ boards });
+      const fresh = await apiService.fetchBoards();
+      dispatch(setBoards(fresh));
     }
-    // TODO: authenticated bulk import not yet supported by the backend
   },
 );
 

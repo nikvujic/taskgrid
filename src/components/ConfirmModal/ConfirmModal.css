@@ -9,3 +9,15 @@
   overflow-wrap: break-word;
   word-break: break-word;
 }
+
+.confirm-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.confirm-spinner {
+  width: 14px;
+  height: 14px;
+  border-width: 2px;
+}

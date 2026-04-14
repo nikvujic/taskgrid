@@ -144,6 +144,27 @@ export const apiService = {
     await request(`/boards/${id}`, { method: 'DELETE' });
   },
 
+  async importData(data: { boards: Board[] }): Promise<void> {
+    const payload = {
+      boards: data.boards.map((b) => ({
+        name: b.name,
+        description: b.description ?? '',
+        color: b.color,
+        lists: (b.lists ?? []).map((l) => ({
+          name: l.name,
+          cards: (l.cards ?? []).map((c) => ({
+            title: c.title,
+            description: c.description ?? null,
+          })),
+        })),
+      })),
+    };
+    await request('/boards/import', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
   // Lists
   async addList(boardId: string, name: string): Promise<{ id: string; name: string }> {
     return request(`/boards/${boardId}/lists`, {

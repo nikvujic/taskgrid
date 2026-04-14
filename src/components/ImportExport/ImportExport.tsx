@@ -7,7 +7,8 @@ import './ImportExport.css';
 type ImportState =
   | { step: 'idle' }
   | { step: 'confirm'; json: string; boardCount: number }
-  | { step: 'error'; kind: 'parse' | 'format' | 'empty' };
+  | { step: 'importing'; json: string; boardCount: number }
+  | { step: 'error'; kind: 'parse' | 'format' | 'empty' | 'api' };
 
 export default function ImportExport() {
   const dispatch = useAppDispatch();
@@ -48,10 +49,16 @@ export default function ImportExport() {
     e.target.value = '';
   }
 
-  function handleConfirmImport() {
+  async function handleConfirmImport() {
     if (state.step !== 'confirm') return;
-    dispatch(importData(state.json));
-    setState({ step: 'idle' });
+    const { json, boardCount } = state;
+    setState({ step: 'importing', json, boardCount });
+    try {
+      await dispatch(importData(json)).unwrap();
+      setState({ step: 'idle' });
+    } catch {
+      setState({ step: 'error', kind: 'api' });
+    }
   }
 
   return (
@@ -69,12 +76,13 @@ export default function ImportExport() {
         style={{ display: 'none' }}
         onChange={handleFileChange}
       />
-      {state.step === 'confirm' && (
+      {(state.step === 'confirm' || state.step === 'importing') && (
         <ConfirmModal
           title="Import data"
           message={`This will replace all your current boards with ${state.boardCount} imported ${state.boardCount === 1 ? 'board' : 'boards'}. Continue?`}
-          confirmLabel="Import"
+          confirmLabel={state.step === 'importing' ? 'Importing…' : 'Import'}
           variant="primary"
+          loading={state.step === 'importing'}
           onConfirm={handleConfirmImport}
           onClose={() => setState({ step: 'idle' })}
         />
@@ -85,6 +93,7 @@ export default function ImportExport() {
           message={
             state.kind === 'parse' ? 'Could not parse file. Make sure it is valid JSON.' :
             state.kind === 'empty' ? 'The imported file contains no boards.' :
+            state.kind === 'api' ? 'Could not save imported data to the server. Please try again.' :
             <>
               <p>Invalid JSON format. Expected:</p>
               <pre className="import-example">
