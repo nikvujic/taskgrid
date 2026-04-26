@@ -1,6 +1,6 @@
 import type { Board, Card, List, User } from '../types';
 
-const API_BASE = 'http://localhost:4000/api';
+const API_BASE = 'http://localhost:17600/api';
 const TOKEN_KEY = 'sk_token';
 
 export class ApiError extends Error {
