@@ -1,73 +1,68 @@
-# React + TypeScript + Vite
+# Simple Kanban
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A minimal kanban board app for individuals. Boards, lists, cards - drag and drop, no clutter.
 
-Currently, two official plugins are available:
+Live at [simple-kanban.nv-platform.com](https://simple-kanban.nv-platform.com).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+- Boards with custom colors, lists, and cards
+- Drag and drop to reorder boards, lists, and cards (powered by [@hello-pangea/dnd](https://github.com/hello-pangea/dnd))
+- Two usage modes:
+  - **Guest** - data lives entirely in `localStorage`, no account needed
+  - **Authenticated** - data is persisted via the [simple-kanban-server](../simple-kanban-server) REST API
+- Import and export all boards as JSON
+- Light and dark themes (persisted, applied before first paint to avoid flash)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Stack
 
-## Expanding the ESLint configuration
+- React 19 + TypeScript + Vite
+- Redux Toolkit + React Redux for state
+- React Router DOM v7
+- `@hello-pangea/dnd` for drag and drop
+- `lucide-react` for icons
+- Plain CSS (no Tailwind / CSS-in-JS)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Getting started
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The dev server runs on Vite's default port. Authenticated mode expects the backend at `http://localhost:17600` - see [simple-kanban-server](../simple-kanban-server) for setup. Guest mode works without a backend.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Scripts
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start the Vite dev server |
+| `npm run build` | TypeScript project build + Vite production build |
+| `npm run lint` | Run ESLint |
+| `npm run preview` | Preview the production build locally |
+
+## Routes
+
+- `/landing-page` - marketing landing page
+- `/login` - sign in (or continue as guest)
+- `/` - boards overview (protected)
+- `/:boardId` - single board view (protected)
+
+## Project layout
+
 ```
+src/
+├── components/      UI components (modals, forms, drag-and-drop primitives, etc.)
+├── pages/           Route-level pages (Landing, Login, Boards)
+├── router/          ProtectedRoute wrapper
+├── store/           Redux slices (auth, boards, toasts)
+├── services/        apiService (REST client) + localStorageService (guest persistence)
+├── hooks/           Typed Redux hooks + useDragScroll
+└── types/           Shared TypeScript types (Board, List, Card, User)
+```
+
+## Configuration
+
+The API base URL is hardcoded to `http://localhost:17600/api` in [src/services/apiService.ts](src/services/apiService.ts). Update it there for non-local deployments.
+
+Auth tokens and guest data are stored in `localStorage` under the `sk_` prefix (`sk_token`, `sk_auth`, `sk_data`, `sk_theme`).
