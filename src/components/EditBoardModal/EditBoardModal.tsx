@@ -14,7 +14,7 @@ interface Props {
 export default function EditBoardModal({ board, onClose }: Props) {
   const dispatch = useAppDispatch();
   const [name, setName] = useState(board.name);
-  const [description, setDescription] = useState(board.description);
+  const [description, setDescription] = useState(board.description ?? '');
   const [color, setColor] = useState(board.color);
 
   function handleSubmit(e: { preventDefault(): void }) {
