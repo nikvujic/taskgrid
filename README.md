@@ -30,7 +30,7 @@ npm install
 npm run dev
 ```
 
-The dev server runs on Vite's default port. Authenticated mode expects the backend at `http://localhost:17600` - see [simple-kanban-server](../simple-kanban-server) for setup. Guest mode works without a backend.
+The dev server runs on Vite's default port. Authenticated mode expects the backend at `http://localhost:17600` - see [simple-kanban-server](https://github.com/nikvujic/simple-kanban-server) for setup. Guest mode works without a backend.
 
 ## Scripts
 
